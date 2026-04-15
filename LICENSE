@@ -1,0 +1,39 @@
+MIT License
+
+Copyright (c) 2026 Sinotrans Logistics Control Tower
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+本项目整合了以下开源项目的代码和设计：
+
+1. DigitalTwinScreen (https://github.com/tmqq2333/DigitalTwinScreen)
+   - 许可证: MIT License
+   - 贡献: 数字孪生可视化技术
+
+2. awesome-design-md (https://github.com/VoltAgent/awesome-design-md)
+   - 许可证: MIT License
+   - 贡献: 设计系统规范
+
+3. TimesFM (https://github.com/google-research/timesfm)
+   - 许可证: Apache License 2.0
+   - 贡献: 时间序列预测模型
+
+感谢这些开源项目的贡献者。

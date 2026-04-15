@@ -1,0 +1,207 @@
+# 外运物流控制塔 - .gitignore
+
+# 忽略所有隐藏文件
+.*
+
+# 但不要忽略以下文件
+!.gitignore
+!.env.example
+!.github/
+!.vscode/
+
+# 依赖目录
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-selfcheck.json
+
+# 构建输出
+dist/
+build/
+*.egg-info/
+*.egg
+*.whl
+
+# IDE配置
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# 日志文件
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 运行时数据
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# 测试覆盖率
+coverage/
+*.lcov
+.nyc_output/
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+*.temp
+
+# 缓存
+.cache/
+.parcel-cache/
+*.cache
+
+# Docker
+docker-compose.override.yml
+
+# 数据库
+*.sqlite
+*.db
+*.sqlite3
+
+# 模型文件
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+*.model
+*.pt
+*.pth
+*.onnx
+*.tflite
+
+# 大型文件
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# 敏感信息
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+
+# 操作系统文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 项目特定
+/backend/venv/
+/frontend/node_modules/
+/prediction/venv/
+/digital-twin/node_modules/
+/design-system/node_modules/
+
+# 开发工具
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# 构建产物
+/backend/dist/
+/frontend/dist/
+/prediction/dist/
+/digital-twin/dist/
+/design-system/dist/
+
+# 测试覆盖率
+/backend/htmlcov/
+/frontend/coverage/
+/prediction/htmlcov/
+
+# 环境变量
+/backend/.env
+/frontend/.env
+/prediction/.env
+/digital-twin/.env
+/design-system/.env
+
+# 日志文件
+/backend/logs/
+/frontend/logs/
+/prediction/logs/
+/digital-twin/logs/
+/design-system/logs/
+
+# 临时文件
+/backend/tmp/
+/frontend/tmp/
+/prediction/tmp/
+/digital-twin/tmp/
+/design-system/tmp/
+
+# 缓存文件
+/backend/__pycache__/
+/frontend/.cache/
+/prediction/__pycache__/
+/digital-twin/.cache/
+/design-system/.cache/
+
+# 数据库文件
+/backend/*.db
+/frontend/*.db
+/prediction/*.db
+/digital-twin/*.db
+/design-system/*.db
+
+# 模型文件
+/prediction/models/*.pt
+/prediction/models/*.pth
+/prediction/models/*.onnx
+
+# 3D模型
+/digital-twin/3d-models/*.glb
+/digital-twin/3d-models/*.gltf
+/digital-twin/3d-models/*.obj
+/digital-twin/3d-models/*.fbx
+
+# 纹理文件
+/digital-twin/textures/*.png
+/digital-twin/textures/*.jpg
+/digital-twin/textures/*.jpeg
+/digital-twin/textures/*.webp
+
+# 文档构建
+/docs/site/
+/docs/_build/
+
+# 依赖锁定
+package-lock.json
+yarn.lock
+Pipfile.lock
+poetry.lock
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini

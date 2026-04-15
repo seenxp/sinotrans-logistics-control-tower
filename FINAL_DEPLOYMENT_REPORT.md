@@ -1,11 +1,11 @@
-# 外运物流控制塔 - 最终部署报告
+# 外运物流控制塔 - 部署完成报告
 
 ## 部署时间
-2026年4月15日 17:50
+2026年4月15日 15:45
 
 ## 部署状态: ✅ 成功
 
-所有核心服务已成功部署并正常运行，包括设计系统集成。
+所有核心服务已成功部署并正常运行。
 
 ## 服务状态
 
@@ -39,12 +39,6 @@
 - 状态: 运行中
 - 统一入口: http://localhost
 
-### ✅ 设计系统预览服务
-- 端口: 8080
-- 状态: 运行中
-- 亮色主题: http://localhost:8080/preview.html
-- 暗色主题: http://localhost:8080/preview-dark.html
-
 ## 访问地址
 
 ### 统一入口 (推荐)
@@ -57,7 +51,6 @@
 - 前端开发服务器: http://localhost:3000
 - 预测服务: http://localhost:8001
 - API文档: http://localhost:8000/docs
-- 设计系统预览: http://localhost:8080/preview.html
 
 ## 系统功能
 
@@ -86,13 +79,6 @@
 6. **前端可视化界面**
    - 物流控制塔主界面
    - 实时数据展示
-   - 响应式设计
-
-7. **设计系统集成**
-   - 基于 awesome-design-md 的设计规范
-   - 完整的颜色、字体、组件系统
-   - 亮色和暗色主题预览
-   - AI代理可读取的设计文档
 
 ### 示例数据
 - 3辆车辆（卡车、船舶）
@@ -105,8 +91,6 @@
 - Vue 3 + TypeScript
 - Vite 构建工具
 - Pinia 状态管理
-- Naive UI 组件库
-- ECharts 图表库
 
 ### 后端技术栈
 - FastAPI (Python 3.9+)
@@ -119,11 +103,6 @@
 - FastAPI 框架
 - 模拟 TimesFM 预测模型
 
-### 设计系统
-- 基于 awesome-design-md
-- 企业级设计规范
-- AI代理可读取
-
 ### 部署架构
 - Nginx 反向代理
 - 多服务微服务架构
@@ -135,46 +114,10 @@
 - 前端页面加载: < 2秒
 - API响应时间: < 100ms
 - 预测计算时间: < 1秒
-- 设计系统加载: < 1秒
 
 ### 系统可用性
 - 当前状态: 全部服务正常运行
 - 健康检查: 所有服务通过
-
-## 设计系统集成
-
-### 文件结构
-```
-sinotrans-logistics-control-tower/
-├── DESIGN.md              # 设计系统文档（AI代理读取）
-├── preview.html           # 亮色主题预览
-├── preview-dark.html      # 暗色主题预览
-├── DESIGN_GUIDE.md        # 使用指南
-└── start-design-preview.sh # 预览启动脚本
-```
-
-### 设计系统特点
-- **颜色系统**: 主色调、功能色、物流业务色
-- **字体系统**: 系统字体栈、完整层级规范
-- **组件系统**: 按钮、卡片、表格、表单等
-- **间距系统**: 8px基础单位
-- **阴影系统**: 4个层级
-
-### 使用方法
-1. 启动预览服务: `./start-design-preview.sh`
-2. 访问预览页面: http://localhost:8080/preview.html
-3. 让AI代理使用DESIGN.md生成UI组件
-
-### AI代理提示词示例
-```
-请使用 DESIGN.md 设计系统创建一个物流订单卡片。
-要求：
-- 使用Bg Component背景 (#ffffff)
-- 添加12px圆角
-- 应用base阴影
-- 内部间距24px
-- 状态标签使用功能色
-```
 
 ## 管理工具
 
@@ -184,31 +127,10 @@ sinotrans-logistics-control-tower/
 ./check_status.sh
 ```
 
-### 设计系统预览
-启动设计系统预览:
-```bash
-./start-design-preview.sh
-```
-
 ### 服务管理
 - 后端服务: 使用systemd管理
 - 前端服务: 使用npm运行
 - 预测服务: 使用Python直接运行
-- 设计系统预览: 使用Python HTTP服务器
-
-## 文档
-
-### 设计文档
-- `DESIGN.md` - 设计系统规范
-- `preview.html` - 亮色主题预览
-- `preview-dark.html` - 暗色主题预览
-- `DESIGN_GUIDE.md` - 使用指南
-
-### 部署文档
-- `DEPLOYMENT_REPORT.md` - 初始部署报告
-- `FINAL_DEPLOYMENT_REPORT.md` - 最终部署报告
-- `check_status.sh` - 状态检查脚本
-- `start-design-preview.sh` - 设计系统预览脚本
 
 ## 后续优化建议
 
@@ -241,17 +163,10 @@ sinotrans-logistics-control-tower/
 - 集成实时数据流
 - 添加移动端支持
 
-### 6. 设计系统扩展
-- 从 awesome-design-md 选择其他风格
-- 自定义设计规范
-- 添加更多组件样式
-- 支持多主题切换
-
 ## 总结
 
-外运物流控制塔项目已成功完成生产部署，所有核心服务正常运行。系统具备完整的物流管理功能，包括车辆管理、订单管理、仓库管理和预测分析。通过Nginx反向代理实现了统一访问入口，并集成了基于awesome-design-md的设计系统，为AI代理提供统一的设计规范。
+外运物流控制塔项目已成功完成生产部署，所有核心服务正常运行。系统具备完整的物流管理功能，包括车辆管理、订单管理、仓库管理和预测分析。通过Nginx反向代理实现了统一访问入口，为后续的扩展和优化奠定了基础。
 
-**部署时间**: 2026年4月15日 17:50
+**部署时间**: 2026年4月15日 15:45
 **部署状态**: ✅ 成功
 **访问地址**: http://localhost
-**设计系统预览**: http://localhost:8080/preview.html

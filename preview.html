@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>外运物流控制塔 - 设计系统预览</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: rgba(0, 0, 0, 0.85);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 48px 24px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .header h1 {
+            font-size: 30px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .section {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12);
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: rgba(0, 0, 0, 0.85);
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 12px;
+        }
+
+        /* Color Palette */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .color-item {
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #f0f0f0;
+        }
+
+        .color-swatch {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .color-info {
+            padding: 12px;
+            background: white;
+        }
+
+        .color-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .color-hex {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        /* Typography */
+        .type-scale {
+            margin-bottom: 24px;
+        }
+
+        .type-item {
+            display: flex;
+            align-items: baseline;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .type-label {
+            width: 120px;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .type-sample {
+            flex: 1;
+        }
+
+        /* Buttons */
+        .button-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: rgba(0, 0, 0, 0.85);
+            border: 1px solid #d9d9d9;
+        }
+
+        .btn-secondary:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: #1890ff;
+            border: 1px solid #1890ff;
+        }
+
+        .btn-ghost:hover {
+            background: #e6f7ff;
+        }
+
+        .btn-success {
+            background: #52c41a;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #faad14;
+            color: white;
+        }
+
+        .btn-error {
+            background: #f5222d;
+            color: white;
+        }
+
+        /* Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #f0f0f0;
+            border-radius: 12px;
+            box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 24px;
+        }
+
+        .card-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #f0f0f0;
+            background: #fafafa;
+        }
+
+        /* Status Tags */
+        .tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .tag-success {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+
+        .tag-warning {
+            background: #fffbe6;
+            color: #faad14;
+            border: 1px solid #ffe58f;
+        }
+
+        .tag-error {
+            background: #fff2f0;
+            color: #f5222d;
+            border: 1px solid #ffccc7;
+        }
+
+        .tag-info {
+            background: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        /* Table */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .table th {
+            background: #f0f2f5;
+            font-weight: 600;
+        }
+
+        .table tr:hover {
+            background: #e6f7ff;
+        }
+
+        /* Spacing Demo */
+        .spacing-demo {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 16px;
+        }
+
+        .spacing-box {
+            background: #1890ff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Shadow Demo */
+        .shadow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 24px;
+        }
+
+        .shadow-item {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .shadow-sm {
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+        }
+
+        .shadow-base {
+            box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12);
+        }
+
+        .shadow-lg {
+            box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08);
+        }
+
+        .shadow-xl {
+            box-shadow: 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Business Colors */
+        .business-colors {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .business-item {
+            text-align: center;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .business-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌐 外运物流控制塔 - 设计系统</h1>
+            <p>基于 awesome-design-md 的企业级设计规范</p>
+        </div>
+
+        <!-- Color Palette -->
+        <div class="section">
+            <h2 class="section-title">🎨 颜色系统</h2>
+            <h3 style="margin-bottom: 16px;">主色调</h3>
+            <div class="color-grid">
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #1890ff;">#1890ff</div>
+                    <div class="color-info">
+                        <div class="color-name">Primary Blue</div>
+                        <div class="color-hex">主要操作按钮、链接</div>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #40a9ff;">#40a9ff</div>
+                    <div class="color-info">
+                        <div class="color-name">Primary Hover</div>
+                        <div class="color-hex">悬停状态</div>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #096dd9;">#096dd9</div>
+                    <div class="color-info">
+                        <div class="color-name">Primary Active</div>
+                        <div class="color-hex">激活状态</div>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #e6f7ff; color: #1890ff;">#e6f7ff</div>
+                    <div class="color-info">
+                        <div class="color-name">Primary Light</div>
+                        <div class="color-hex">浅色背景</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin: 24px 0 16px;">功能色</h3>
+            <div class="color-grid">
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #52c41a;">#52c41a</div>
+                    <div class="color-info">
+                        <div class="color-name">Success</div>
+                        <div class="color-hex">成功状态</div>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #faad14;">#faad14</div>
+                    <div class="color-info">
+                        <div class="color-name">Warning</div>
+                        <div class="color-hex">警告状态</div>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #f5222d;">#f5222d</div>
+                    <div class="color-info">
+                        <div class="color-name">Error</div>
+                        <div class="color-hex">错误状态</div>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #1890ff;">#1890ff</div>
+                    <div class="color-info">
+                        <div class="color-name">Info</div>
+                        <div class="color-hex">信息提示</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin: 24px 0 16px;">物流业务色</h3>
+            <div class="business-colors">
+                <div class="business-item">
+                    <div class="business-icon" style="background: #fa8c16;">🚛</div>
+                    <div class="color-name">卡车运输</div>
+                    <div class="color-hex">#fa8c16</div>
+                </div>
+                <div class="business-item">
+                    <div class="business-icon" style="background: #1890ff;">🚢</div>
+                    <div class="color-name">船舶运输</div>
+                    <div class="color-hex">#1890ff</div>
+                </div>
+                <div class="business-item">
+                    <div class="business-icon" style="background: #52c41a;">✈️</div>
+                    <div class="color-name">航空运输</div>
+                    <div class="color-hex">#52c41a</div>
+                </div>
+                <div class="business-item">
+                    <div class="business-icon" style="background: #722ed1;">🚂</div>
+                    <div class="color-name">铁路运输</div>
+                    <div class="color-hex">#722ed1</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Typography -->
+        <div class="section">
+            <h2 class="section-title">📝 字体系统</h2>
+            <div class="type-scale">
+                <div class="type-item">
+                    <div class="type-label">H1 (30px)</div>
+                    <div class="type-sample" style="font-size: 30px; font-weight: 600;">外运物流控制塔</div>
+                </div>
+                <div class="type-item">
+                    <div class="type-label">H2 (24px)</div>
+                    <div class="type-sample" style="font-size: 24px; font-weight: 600;">数据分析面板</div>
+                </div>
+                <div class="type-item">
+                    <div class="type-label">H3 (20px)</div>
+                    <div class="type-sample" style="font-size: 20px; font-weight: 600;">实时监控</div>
+                </div>
+                <div class="type-item">
+                    <div class="type-label">H4 (16px)</div>
+                    <div class="type-sample" style="font-size: 16px; font-weight: 600;">订单详情</div>
+                </div>
+                <div class="type-item">
+                    <div class="type-label">Body (16px)</div>
+                    <div class="type-sample" style="font-size: 16px;">外运物流控制塔是一个整合数字孪生、AI预测和可视化大屏的智能物流管理平台。</div>
+                </div>
+                <div class="type-item">
+                    <div class="type-label">Small (14px)</div>
+                    <div class="type-sample" style="font-size: 14px; color: rgba(0, 0, 0, 0.65);">最后更新：2026年4月15日 15:45</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="section">
+            <h2 class="section-title">🔘 按钮系统</h2>
+            <div class="button-grid">
+                <button class="btn btn-primary">主要按钮</button>
+                <button class="btn btn-secondary">次要按钮</button>
+                <button class="btn btn-ghost">幽灵按钮</button>
+                <button class="btn btn-success">成功按钮</button>
+                <button class="btn btn-warning">警告按钮</button>
+                <button class="btn btn-error">错误按钮</button>
+            </div>
+        </div>
+
+        <!-- Cards -->
+        <div class="section">
+            <h2 class="section-title">📦 卡片系统</h2>
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-header">📊 今日订单</div>
+                    <div class="card-body">
+                        <div style="font-size: 30px; font-weight: 600; color: #1890ff;">2,580</div>
+                        <div style="color: rgba(0, 0, 0, 0.65); margin-top: 8px;">
+                            <span style="color: #52c41a;">↑ 12.5%</span> 较昨日
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <span class="tag tag-success">正常运行</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">🚛 在线车辆</div>
+                    <div class="card-body">
+                        <div style="font-size: 30px; font-weight: 600; color: #1890ff;">342</div>
+                        <div style="color: rgba(0, 0, 0, 0.65); margin-top: 8px;">
+                            <span style="color: #52c41a;">↑ 8.3%</span> 较昨日
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <span class="tag tag-warning">3辆维护中</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">⚠️ 实时告警</div>
+                    <div class="card-body">
+                        <div style="margin-bottom: 12px;">
+                            <span class="tag tag-warning">中等</span>
+                            北京至上海线路预计延迟2小时
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <span class="tag tag-error">高</span>
+                            上海分拨中心容量即将饱和
+                        </div>
+                        <div>
+                            <span class="tag tag-info">低</span>
+                            华南地区明日有雨
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Tags -->
+        <div class="section">
+            <h2 class="section-title">🏷️ 状态标签</h2>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+                <span class="tag tag-success">成功</span>
+                <span class="tag tag-warning">警告</span>
+                <span class="tag tag-error">错误</span>
+                <span class="tag tag-info">信息</span>
+                <span class="tag tag-success">已交付</span>
+                <span class="tag tag-warning">运输中</span>
+                <span class="tag tag-error">异常</span>
+                <span class="tag tag-info">待处理</span>
+            </div>
+        </div>
+
+        <!-- Form Elements -->
+        <div class="section">
+            <h2 class="section-title">📝 表单元素</h2>
+            <div style="max-width: 400px;">
+                <div class="form-group">
+                    <label class="form-label">订单号</label>
+                    <input type="text" class="form-input" placeholder="请输入订单号">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">发货城市</label>
+                    <input type="text" class="form-input" placeholder="请输入发货城市">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">货物类型</label>
+                    <select class="form-input">
+                        <option>电子产品</option>
+                        <option>服装</option>
+                        <option>食品</option>
+                        <option>其他</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="section">
+            <h2 class="section-title">📊 数据表格</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>排名</th>
+                        <th>起点</th>
+                        <th>终点</th>
+                        <th>订单量</th>
+                        <th>平均时效</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>上海</td>
+                        <td>北京</td>
+                        <td>1,250</td>
+                        <td>14.5小时</td>
+                        <td><span class="tag tag-success">正常</span></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>广州</td>
+                        <td>深圳</td>
+                        <td>980</td>
+                        <td>2.5小时</td>
+                        <td><span class="tag tag-success">正常</span></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>北京</td>
+                        <td>天津</td>
+                        <td>856</td>
+                        <td>2小时</td>
+                        <td><span class="tag tag-warning">延迟</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Spacing -->
+        <div class="section">
+            <h2 class="section-title">📏 间距系统</h2>
+            <div class="spacing-demo">
+                <div class="spacing-box" style="width: 4px; height: 40px;">4px</div>
+                <div class="spacing-box" style="width: 8px; height: 40px;">8px</div>
+                <div class="spacing-box" style="width: 16px; height: 40px;">16px</div>
+                <div class="spacing-box" style="width: 24px; height: 40px;">24px</div>
+                <div class="spacing-box" style="width: 32px; height: 40px;">32px</div>
+            </div>
+        </div>
+
+        <!-- Shadows -->
+        <div class="section">
+            <h2 class="section-title">🌗 阴影系统</h2>
+            <div class="shadow-grid">
+                <div class="shadow-item shadow-sm">
+                    <div style="font-weight: 600; margin-bottom: 8px;">Small</div>
+                    <div style="font-size: 12px; color: rgba(0, 0, 0, 0.65);">轻微阴影</div>
+                </div>
+                <div class="shadow-item shadow-base">
+                    <div style="font-weight: 600; margin-bottom: 8px;">Base</div>
+                    <div style="font-size: 12px; color: rgba(0, 0, 0, 0.65);">卡片阴影</div>
+                </div>
+                <div class="shadow-item shadow-lg">
+                    <div style="font-weight: 600; margin-bottom: 8px;">Large</div>
+                    <div style="font-size: 12px; color: rgba(0, 0, 0, 0.65);">弹窗阴影</div>
+                </div>
+                <div class="shadow-item shadow-xl">
+                    <div style="font-weight: 600; margin-bottom: 8px;">Extra Large</div>
+                    <div style="font-size: 12px; color: rgba(0, 0, 0, 0.65);">模态框阴影</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; margin-top: 48px; color: rgba(0, 0, 0, 0.65);">
+            <p>外运物流控制塔设计系统 v1.0.0</p>
+            <p style="font-size: 14px; margin-top: 8px;">基于 awesome-design-md 企业级设计规范</p>
+        </div>
+    </div>
+</body>
+</html>

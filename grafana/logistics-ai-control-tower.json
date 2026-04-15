@@ -1,0 +1,1044 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "logistics-ai-control-tower-v1",
+    "title": "物流AI控制塔 - Logistics AI Control Tower",
+    "description": "中大型物流企业AI智能监控大屏 - 实时追踪、智能预警、自动处置",
+    "tags": ["logistics", "ai-control-tower", "sinotrans", "real-time"],
+    "timezone": "browser",
+    "editable": true,
+    "graphTooltip": 1,
+    "refresh": "30s",
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "timepicker": {
+      "refresh_intervals": ["5s", "10s", "30s", "1m", "5m"],
+      "time_options": ["5m", "15m", "1h", "6h", "12h", "24h", "2d", "7d", "30d"]
+    },
+    "templating": {
+      "list": [
+        {
+          "name": "datasource",
+          "type": "datasource",
+          "query": "prometheus",
+          "current": {},
+          "hide": 0,
+          "includeAll": false,
+          "multi": false,
+          "options": [],
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false
+        },
+        {
+          "name": "time_range",
+          "type": "custom",
+          "query": "now-24h,now-7d,now-30d",
+          "current": {
+            "text": "24小时",
+            "value": "now-24h"
+          },
+          "options": [
+            {"text": "24小时", "value": "now-24h", "selected": true},
+            {"text": "7天", "value": "now-7d", "selected": false},
+            {"text": "30天", "value": "now-30d", "selected": false}
+          ],
+          "hide": 0
+        },
+        {
+          "name": "region",
+          "type": "query",
+          "query": "label_values(logistics_shipment_total, region)",
+          "datasource": {"type": "prometheus", "uid": "${datasource}"},
+          "current": {"text": "All", "value": "$__all"},
+          "includeAll": true,
+          "multi": true,
+          "refresh": 2,
+          "sort": 1
+        },
+        {
+          "name": "warehouse",
+          "type": "query",
+          "query": "label_values(logistics_warehouse_capacity_percent, warehouse)",
+          "datasource": {"type": "prometheus", "uid": "${datasource}"},
+          "current": {"text": "All", "value": "$__all"},
+          "includeAll": true,
+          "multi": true,
+          "refresh": 2,
+          "sort": 1
+        },
+        {
+          "name": "carrier",
+          "type": "query",
+          "query": "label_values(logistics_carrier_performance, carrier)",
+          "datasource": {"type": "prometheus", "uid": "${datasource}"},
+          "current": {"text": "All", "value": "$__all"},
+          "includeAll": true,
+          "multi": true,
+          "refresh": 2,
+          "sort": 1
+        }
+      ]
+    },
+    "annotations": {
+      "list": [
+        {
+          "name": "AI Actions",
+          "datasource": {"type": "prometheus", "uid": "${datasource}"},
+          "enable": true,
+          "iconColor": "#0077B6",
+          "expr": "logistics_ai_action_total",
+          "titleFormat": "AI处置: {{action_type}}",
+          "textFormat": "{{description}}"
+        },
+        {
+          "name": "Alerts",
+          "datasource": {"type": "prometheus", "uid": "${datasource}"},
+          "enable": true,
+          "iconColor": "#FF6B6B",
+          "expr": "ALERTS{alertstate=\"firing\"}",
+          "titleFormat": "告警: {{alertname}}",
+          "textFormat": "{{summary}}"
+        }
+      ]
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "📊 核心运营指标",
+        "type": "row",
+        "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+        "collapsed": false,
+        "panels": []
+      },
+      {
+        "id": 2,
+        "title": "🚛 总在途运单",
+        "description": "当前时刻所有在运输途中的运单数量",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 1},
+        "datasource": {"type": "prometheus", "uid": "${datasource}"},
+        "targets": [
+          {
+            "expr": "sum(logistics_shipment_in_transit_total{region=~\"$region\"})",
+            "legendFormat": "在途运单",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "fixed", "fixedColor": "#0077B6"},
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "#0077B6", "value": null},
+                {"color": "#00B4D8", "value": 100},
+                {"color": "#FFD166", "value": 500},
+                {"color": "#FF6B6B", "value": 1000}
+              ]
+            },
+            "unit": "short"
+          }
+        },
+        "options": {
+          "colorMode": "background",
+          "graphMode": "area",
+          "justifyMode": "center",
+          "textMode": "value_and_name",
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "orientation": "horizontal"
+        }
+      },
+      {
+        "id": 3,
+        "title": "✅ 准时交付率 OTD",
+        "description": "On-Time Delivery - 准时送达订单占比",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 1},
+        "datasource": {"type": "prometheus", "uid": "${datasource}"},
+        "targets": [
+          {
+            "expr": "avg(logistics_otd_percent{region=~\"$region\"})",
+            "legendFormat": "OTD%",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "fixed", "fixedColor": "#06D6A0"},
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "#FF6B6B", "value": null},
+                {"color": "#FFD166", "value": 85},
+                {"color": "#06D6A0", "value": 95}
+              ]
+            },
+            "unit": "percent",
+            "decimals": 1
+          }
+        },
+        "options": {
+          "colorMode": "background",
+          "graphMode": "area",
+          "justifyMode": "center",
+          "textMode": "value_and_name",
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "🤖 AI自主处理率",
+        "description": "AI Agent自动处理的异常事件占比",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 1},
+        "datasource": {"type": "prometheus", "uid": "${datasource}"},
+        "targets": [
+          {
+            "expr": "sum(logistics_ai_resolved_total) / sum(logistics_incident_total) * 100",
+            "legendFormat": "AI处理率%",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "fixed", "fixedColor": "#7B2CBF"},
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "#FF6B6B", "value": null},
+                {"color": "#FFD166", "value": 60},
+                {"color": "#7B2CBF", "value": 80}
+              ]
+            },
+            "unit": "percent",
+            "decimals": 1
+          }
+        },
+        "options": {
+          "colorMode": "background",
+          "graphMode": "area",
+          "justifyMode": "center",
+          "textMode": "value_and_name",
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          }
+        }
+      },
+      {
+        "id": 5,
+        "title": "💰 今日成本节省",
+        "description": "AI优化路径、自动调度等带来的成本节省",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 1},
+        "datasource": {"type": "prometheus", "uid": "${datasource}"},
+        "targets": [
+          {
+            "expr": "sum(logistics_cost_saving_total{region=~\"$region\"}) - sum(logistics_cost_saving_total{region=~\"$region\"} offset 24h)",
+            "legendFormat": "节省金额",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "fixed", "fixedColor": "#06D6A0"},
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "#FFD166", "value": null},
+                {"color": "#06D6A0", "value": 10000}
+              ]
+            },
+            "unit": "currencyCNY",
+            "decimals": 0
+          }
+        },
+        "options": {
+          "colorMode": "background",
+          "graphMode": "area",
+          "justifyMode": "center",
+          "textMode": "value_and_name",
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          }
+        }
+      },
+      {
+        "id": 6,
+        "title": "🗺️ 运力分布地图",
+        "type": "row",
+        "gridPos": {"h": 1, "w": 24, "x": 0, "y": 5},
+        "collapsed": false,
+        "panels": []
+      },
+      {
+        "id": 7,
+        "title": "📍 实时车辆/运单位置",
+        "description": "GPS实时追踪 - 车辆位置与状态",
+        "type": "geomap",
+        "gridPos": {"h": 10, "w": 12, "x": 0, "y": 6},
+        "datasource": {"type": "prometheus", "uid": "${datasource}"},
+        "targets": [
+          {
+            "expr": "logistics_vehicle_location{region=~\"$region\"}",
+            "legendFormat": "{{vehicle_id}}",
+            "refId": "A",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {}
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "status"},
+              "properties": [
+                {
+                  "id": "mappings",
+                  "value": [
+                    {"type": "value", "options": {"moving": {"text": "运输中", "color": "#0077B6"}}},
+                    {"type": "value", "options": {"idle": {"text": "待命", "color": "#06D6A0"}}},
+                    {"type": "value", "options": {"delayed": {"text": "延误", "color": "#FF6B6B"}}},
+                    {"type": "value", "options": {"loading": {"text": "装卸中", "color": "#FFD166"}}}
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "options": {
+          "view": {
+            "id": "coords",
+            "lat": 35.8617,
+            "lon": 104.1954,
+            "zoom": 4
+          },
+          "basemap": {
+            "type": "carto",
+            "config": {
+              "theme": "dark"
+            }
+          },
+          "layers": [
+            {
+              "type": "markers",
+              "config": {
+                "style": "circle",
+                "size": 8,
+                "color": {"fixed": "#0077B6"}
+              }
+            }
+          ],
+          "tooltip": {
+            "mode": "details"
+          }
+        }
+      },
+      {
+        "id": 8,
+        "title": "🏭 仓库利用率热力图",
+        "description": "各仓库库位使用率 - 深色表示高利用率",
+        "type": "heatmap",
+        "gridPos": {"h": 10, "w": 12, "x": 12, "y": 6},
+        "datasource": {"type": "prometheus", "uid": "${datasource}"},
+        "targets": [
+          {
+            "expr": "logistics_warehouse_capacity_percent{warehouse=~\"$warehouse\"}",
+            "legendFormat": "{{warehouse}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "scheme",
+              "schemeName": "Blues"
+            },
+            "custom": {
+              "scaleDistribution": {"type": "linear"}
+            },
+            "min": 0,
+            "max": 100,
+            "unit": "percent"
+          }
+        },
+        "options": {
+          "calculate": false,
+          "yAxis": {
+            "axisPlacement": "left",
+            "reverse": false
+          },
+          "color": {
+            "mode": "scheme",
+            "scheme": "Blues",
+            "steps": 64
+          },
+          "cellGap": 1,
+          "tooltip": {
+            "mode": "single"
+          }
+        }
+      },
+      {
+        "id": 9,
+        "title": "📈 趋势分析",
+        "type": "row",
+        "gridPos": {"h": 1, "w": 24, "x": 0, "y": 16},
+        "collapsed": false,
+        "panels": []
+      },
+      {
+        "id": 10,
+        "title": "📊 OTD准时交付趋势",
+        "description": "过去24小时/7天的准时交付率变化",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 17},
+        "datasource": {"type": "prometheus", "uid": "${datasource}"},
+        "targets": [
+          {
+            "expr": "avg_over_time(logistics_otd_percent{region=~\"$region\"}[$__rate_interval])",
+            "legendFormat": "OTD%",
+            "refId": "A"
+          },
+          {
+            "expr": "avg(logistics_otd_target)",
+            "legendFormat": "目标线",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "fixed", "fixedColor": "#0077B6"},
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "lineWidth": 2,
+              "fillOpacity": 15,
+              "gradientMode": "scheme",
+              "showPoints": "auto",
+              "pointSize": 5,
+              "spanNulls": false,
+              "axisSoftMin": 80,
+              "axisSoftMax": 100
+            },
+            "unit": "percent",
+            "decimals": 1,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "#FF6B6B", "value": null},
+                {"color": "#FFD166", "value": 90},
+                {"color": "#06D6A0", "value": 95}
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "目标线"},
+              "properties": [
+                {"id": "color", "value": {"fixedColor": "#FFD166", "mode": "fixed"}},
+                {"id": "custom.lineStyle", "value": {"fill": "dash", "dash": [10, 10]}},
+                {"id": "custom.lineWidth", "value": 1}
+              ]
+            }
+          ]
+        },
+        "options": {
+          "tooltip": {"mode": "multi", "sort": "desc"},
+          "legend": {"displayMode": "list", "placement": "bottom"}
+        }
+      },
+      {
+        "id": 11,
+        "title": "⚠️ 延误趋势分析",
+        "description": "延误订单数量与原因分布",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 17},
+        "datasource": {"type": "prometheus", "uid": "${datasource}"},
+        "targets": [
+          {
+            "expr": "sum(logistics_delay_total{region=~\"$region\"}) by (delay_reason)",
+            "legendFormat": "{{delay_reason}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {
+              "drawStyle": "bars",
+              "barAlignment": 0,
+              "lineWidth": 1,
+              "fillOpacity": 80,
+              "gradientMode": "none",
+              "stacking": {"mode": "normal", "group": "A"},
+              "showPoints": "never"
+            },
+            "unit": "short"
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "交通拥堵"},
+              "properties": [{"id": "color", "value": {"fixedColor": "#FFD166", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "天气原因"},
+              "properties": [{"id": "color", "value": {"fixedColor": "#0077B6", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "仓库爆仓"},
+              "properties": [{"id": "color", "value": {"fixedColor": "#FF6B6B", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "车辆故障"},
+              "properties": [{"id": "color", "value": {"fixedColor": "#7B2CBF", "mode": "fixed"}}]
+            }
+          ]
+        },
+        "options": {
+          "tooltip": {"mode": "multi", "sort": "desc"},
+          "legend": {"displayMode": "list", "placement": "bottom"}
+        }
+      },
+      {
+        "id": 12,
+        "title": "🔄 Escalation 处理漏斗",
+        "description": "AI处理 → 人工升级 → 已解决的流转情况",
+        "type": "barchart",
+        "gridPos": {"h": 8, "w": 8, "x": 0, "y": 25},
+        "datasource": {"type": "prometheus", "uid": "${datasource}"},
+        "targets": [
+          {
+            "expr": "sum(logistics_incident_total{region=~\"$region\"})",
+            "legendFormat": "总事件",
+            "refId": "A",
+            "instant": true
+          },
+          {
+            "expr": "sum(logistics_ai_handled_total{region=~\"$region\"})",
+            "legendFormat": "AI处理",
+            "refId": "B",
+            "instant": true
+          },
+          {
+            "expr": "sum(logistics_escalated_total{region=~\"$region\"})",
+            "legendFormat": "人工升级",
+            "refId": "C",
+            "instant": true
+          },
+          {
+            "expr": "sum(logistics_resolved_total{region=~\"$region\"})",
+            "legendFormat": "已解决",
+            "refId": "D",
+            "instant": true
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "fixed", "fixedColor": "#0077B6"},
+            "custom": {
+              "lineWidth": 1,
+              "fillOpacity": 80
+            },
+            "unit": "short"
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "总事件"},
+              "properties": [{"id": "color", "value": {"fixedColor": "#E0E0E0", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "AI处理"},
+              "properties": [{"id": "color", "value": {"fixedColor": "#7B2CBF", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "人工升级"},
+              "properties": [{"id": "color", "value": {"fixedColor": "#FFD166", "mode": "fixed"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "已解决"},
+              "properties": [{"id": "color", "value": {"fixedColor": "#06D6A0", "mode": "fixed"}}]
+            }
+          ]
+        },
+        "options": {
+          "orientation": "horizontal",
+          "showValue": "always",
+          "barWidth": 0.7,
+          "groupWidth": 0.7,
+          "legend": {"displayMode": "list", "placement": "bottom"}
+        }
+      },
+      {
+        "id": 13,
+        "title": "🎯 风险预测仪表盘",
+        "description": "基于AI的实时风险评估指数 (0-100)",
+        "type": "gauge",
+        "gridPos": {"h": 8, "w": 4, "x": 8, "y": 25},
+        "datasource": {"type": "prometheus", "uid": "${datasource}"},
+        "targets": [
+          {
+            "expr": "logistics_risk_score{region=~\"$region\"}",
+            "legendFormat": "风险指数",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "#06D6A0", "value": null},
+                {"color": "#FFD166", "value": 40},
+                {"color": "#FF6B6B", "value": 70}
+              ]
+            },
+            "min": 0,
+            "max": 100,
+            "unit": "short",
+            "decimals": 0
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "showThresholdLabels": true,
+          "showThresholdMarkers": true,
+          "minVizHeight": 200,
+          "minVizWidth": 200,
+          "orientation": "auto"
+        }
+      },
+      {
+        "id": 14,
+        "title": "📋 AI Agent 智能建议",
+        "description": "AI实时分析后生成的自然语言行动建议",
+        "type": "table",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 25},
+        "datasource": {"type": "prometheus", "uid": "${datasource}"},
+        "targets": [
+          {
+            "expr": "logistics_ai_recommendation{region=~\"$region\"}",
+            "legendFormat": "",
+            "refId": "A",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "align": "left",
+              "displayMode": "auto",
+              "filterable": true,
+              "inspect": false
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "priority"},
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 80
+                },
+                {
+                  "id": "mappings",
+                  "value": [
+                    {"type": "value", "options": {"critical": {"text": "🔴 紧急", "color": "#FF6B6B"}}},
+                    {"type": "value", "options": {"high": {"text": "🟠 高", "color": "#FFD166"}}},
+                    {"type": "value", "options": {"medium": {"text": "🟡 中", "color": "#0077B6"}}},
+                    {"type": "value", "options": {"low": {"text": "🟢 低", "color": "#06D6A0"}}}
+                  ]
+                }
+              ]
+            },
+            {
+              "matcher": {"id": "byName", "options": "recommendation"},
+              "properties": [
+                {"id": "custom.width", "value": 400},
+                {"id": "custom.align", "value": "left"}
+              ]
+            },
+            {
+              "matcher": {"id": "byName", "options": "timestamp"},
+              "properties": [
+                {"id": "custom.width", "value": 150},
+                {"id": "unit", "value": "dateTimeAsIso"}
+              ]
+            }
+          ]
+        },
+        "options": {
+          "showHeader": true,
+          "footer": {"show": false},
+          "sortBy": [{"displayName": "timestamp", "desc": true}]
+        },
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "__name__": true,
+                "job": true,
+                "instance": true
+              },
+              "renameByName": {
+                "timestamp": "时间",
+                "priority": "优先级",
+                "category": "类别",
+                "recommendation": "AI建议行动",
+                "affected_shipments": "影响运单",
+                "estimated_impact": "预估影响"
+              },
+              "indexByName": {
+                "时间": 0,
+                "优先级": 1,
+                "类别": 2,
+                "AI建议行动": 3,
+                "影响运单": 4,
+                "预估影响": 5
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 15,
+        "title": "📉 Top异常事件",
+        "description": "当前需要关注的异常事件排名",
+        "type": "bargauge",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 33},
+        "datasource": {"type": "prometheus", "uid": "${datasource}"},
+        "targets": [
+          {
+            "expr": "topk(10, sum(logistics_anomaly_total{region=~\"$region\"}) by (anomaly_type))",
+            "legendFormat": "{{anomaly_type}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "#06D6A0", "value": null},
+                {"color": "#FFD166", "value": 10},
+                {"color": "#FF6B6B", "value": 30}
+              ]
+            },
+            "min": 0,
+            "unit": "short"
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "orientation": "horizontal",
+          "displayMode": "gradient",
+          "showUnfilled": true,
+          "minVizHeight": 10,
+          "minVizWidth": 0,
+          "valueMode": "color"
+        }
+      },
+      {
+        "id": 16,
+        "title": "🚗 承运商绩效排行",
+        "description": "各承运商准时率、成本效率综合评分",
+        "type": "table",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 33},
+        "datasource": {"type": "prometheus", "uid": "${datasource}"},
+        "targets": [
+          {
+            "expr": "logistics_carrier_performance{carrier=~\"$carrier\"}",
+            "legendFormat": "",
+            "refId": "A",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "align": "center",
+              "displayMode": "auto",
+              "filterable": true
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "otd_percent"},
+              "properties": [
+                {"id": "unit", "value": "percent"},
+                {"id": "decimals", "value": 1},
+                {
+                  "id": "thresholds",
+                  "value": {
+                    "mode": "absolute",
+                    "steps": [
+                      {"color": "#FF6B6B", "value": null},
+                      {"color": "#FFD166", "value": 90},
+                      {"color": "#06D6A0", "value": 95}
+                    ]
+                  }
+                },
+                {"id": "custom.displayMode", "value": "color-background"}
+              ]
+            },
+            {
+              "matcher": {"id": "byName", "options": "score"},
+              "properties": [
+                {
+                  "id": "mappings",
+                  "value": [
+                    {"type": "range", "options": {"from": 90, "to": 100, "result": {"text": "⭐⭐⭐⭐⭐"}}},
+                    {"type": "range", "options": {"from": 80, "to": 89, "result": {"text": "⭐⭐⭐⭐"}}},
+                    {"type": "range", "options": {"from": 70, "to": 79, "result": {"text": "⭐⭐⭐"}}},
+                    {"type": "range", "options": {"from": 0, "to": 69, "result": {"text": "⭐⭐"}}}
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "options": {
+          "showHeader": true,
+          "footer": {"show": false},
+          "sortBy": [{"displayName": "score", "desc": true}]
+        },
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "renameByName": {
+                "carrier": "承运商",
+                "otd_percent": "准时率",
+                "cost_efficiency": "成本效率",
+                "damage_rate": "破损率",
+                "score": "综合评分"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 17,
+        "title": "⏰ 运单状态分布",
+        "description": "各状态运单数量实时分布",
+        "type": "piechart",
+        "gridPos": {"h": 6, "w": 8, "x": 0, "y": 41},
+        "datasource": {"type": "prometheus", "uid": "${datasource}"},
+        "targets": [
+          {
+            "expr": "sum(logistics_shipment_by_status{region=~\"$region\"}) by (status)",
+            "legendFormat": "{{status}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "mappings": [
+              {"type": "value", "options": {"pending": {"color": "#E0E0E0"}}},
+              {"type": "value", "options": {"in_transit": {"color": "#0077B6"}}},
+              {"type": "value", "options": {"delivered": {"color": "#06D6A0"}}},
+              {"type": "value", "options": {"exception": {"color": "#FF6B6B"}}},
+              {"type": "value", "options": {"returned": {"color": "#FFD166"}}}
+            ]
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "legend": {"displayMode": "table", "placement": "right", "values": ["value", "percent"]},
+          "pieType": "donut",
+          "displayLabels": ["percent"]
+        }
+      },
+      {
+        "id": 18,
+        "title": "📦 库存预警",
+        "description": "低于安全库存的品类实时告警",
+        "type": "table",
+        "gridPos": {"h": 6, "w": 8, "x": 8, "y": 41},
+        "datasource": {"type": "prometheus", "uid": "${datasource}"},
+        "targets": [
+          {
+            "expr": "logistics_inventory_alert{warehouse=~\"$warehouse\", alert_level!=\"normal\"}",
+            "legendFormat": "",
+            "refId": "A",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "align": "center",
+              "displayMode": "auto",
+              "filterable": true
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "alert_level"},
+              "properties": [
+                {
+                  "id": "mappings",
+                  "value": [
+                    {"type": "value", "options": {"critical": {"text": "🔴 缺货", "color": "#FF6B6B"}}},
+                    {"type": "value", "options": {"warning": {"text": "🟡 预警", "color": "#FFD166"}}}
+                  ]
+                }
+              ]
+            },
+            {
+              "matcher": {"id": "byName", "options": "days_remaining"},
+              "properties": [
+                {"id": "unit", "value": "d"},
+                {
+                  "id": "thresholds",
+                  "value": {
+                    "mode": "absolute",
+                    "steps": [
+                      {"color": "#FF6B6B", "value": null},
+                      {"color": "#FFD166", "value": 3},
+                      {"color": "#06D6A0", "value": 7}
+                    ]
+                  }
+                },
+                {"id": "custom.displayMode", "value": "color-background"}
+              ]
+            }
+          ]
+        },
+        "options": {
+          "showHeader": true,
+          "footer": {"show": false}
+        },
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "renameByName": {
+                "warehouse": "仓库",
+                "sku": "SKU",
+                "product_name": "商品名称",
+                "current_stock": "当前库存",
+                "safety_stock": "安全库存",
+                "days_remaining": "可用天数",
+                "alert_level": "预警级别"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 19,
+        "title": "🔋 系统健康监控",
+        "description": "AI控制塔各模块运行状态",
+        "type": "stat",
+        "gridPos": {"h": 6, "w": 8, "x": 16, "y": 41},
+        "datasource": {"type": "prometheus", "uid": "${datasource}"},
+        "targets": [
+          {
+            "expr": "up{job=~\"logistics-.*\"}",
+            "legendFormat": "{{job}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "mappings": [
+              {"type": "value", "options": {"1": {"text": "✅ 运行中", "color": "#06D6A0"}}},
+              {"type": "value", "options": {"0": {"text": "❌ 离线", "color": "#FF6B6B"}}}
+            ],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "#FF6B6B", "value": null},
+                {"color": "#06D6A0", "value": 1}
+              ]
+            }
+          }
+        },
+        "options": {
+          "colorMode": "value",
+          "graphMode": "none",
+          "justifyMode": "center",
+          "textMode": "value_and_name",
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "orientation": "horizontal"
+        }
+      }
+    ],
+    "schemaVersion": 39,
+    "version": 1,
+    "links": [
+      {
+        "title": "外运物流控制塔",
+        "url": "http://localhost",
+        "icon": "external link",
+        "type": "link",
+        "tooltip": "打开外运物流控制塔主系统"
+      },
+      {
+        "title": "Hermes Agent",
+        "url": "http://localhost:40000",
+        "icon": "external link",
+        "type": "link",
+        "tooltip": "红芯智答 AI助手"
+      }
+    ]
+  },
+  "overwrite": true,
+  "inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "Prometheus",
+      "description": "Prometheus数据源",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ]
+}

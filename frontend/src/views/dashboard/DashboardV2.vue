@@ -39,8 +39,8 @@
               <p class="card-subtitle">过去7天订单量与完成量</p>
             </div>
             <div class="chart-actions">
-              <button class="btn btn-subtle" :class="{ active: trendRange === '7d' }" @click="trendRange = '7d'">7天</button>
-              <button class="btn btn-subtle" :class="{ active: trendRange === '30d' }" @click="trendRange = '30d'">30天</button>
+              <button class="btn btn-sm btn-ghost" :class="{ active: trendRange === '7d' }" @click="trendRange = '7d'">7天</button>
+              <button class="btn btn-sm btn-ghost" :class="{ active: trendRange === '30d' }" @click="trendRange = '30d'">30天</button>
             </div>
           </div>
           <div ref="orderTrendChart" class="chart-container"></div>
@@ -59,7 +59,7 @@
       </div>
     </section>
 
-    <!-- 3D可视化和告警 -->
+    <!-- 地图和告警 -->
     <section class="visualization-section">
       <div class="viz-grid">
         <!-- 物流网络地图 -->
@@ -70,7 +70,7 @@
               <p class="card-subtitle">实时车辆位置与运输线路</p>
             </div>
             <div class="flex gap-2">
-              <span class="badge badge-brand">
+              <span class="badge badge-lime">
                 <span class="status-dot status-dot-success"></span>
                 实时数据
               </span>
@@ -85,7 +85,7 @@
                   class="map-outline"
                   d="M200,150 Q250,100 350,120 Q450,80 550,130 Q620,150 650,200 Q680,280 650,350 Q600,420 500,450 Q400,480 300,450 Q200,420 180,350 Q150,280 170,200 Q180,160 200,150"
                   fill="none"
-                  stroke="var(--border-default)"
+                  stroke="var(--border-subtle)"
                   stroke-width="2"
                 />
                 
@@ -94,7 +94,7 @@
                   <path v-for="route in routes" :key="route.name"
                     :d="route.path"
                     fill="none"
-                    stroke="var(--brand-primary)"
+                    stroke="var(--brand-purple)"
                     stroke-width="1.5"
                     stroke-dasharray="5,5"
                     opacity="0.6"
@@ -129,12 +129,12 @@
               </svg>
               
               <!-- 悬浮信息卡片 -->
-              <div v-if="hoveredCity" class="city-tooltip card" :style="{ left: hoveredCity.x + 'px', top: hoveredCity.y + 'px' }">
+              <div v-if="hoveredCity" class="city-tooltip card card-glass" :style="{ left: hoveredCity.x + 'px', top: hoveredCity.y + 'px' }">
                 <div class="flex items-center gap-2" style="margin-bottom: 8px;">
                   <span class="status-dot" :class="hoveredCity.status === 'active' ? 'status-dot-success' : 'status-dot-warning'"></span>
                   <span class="text-body-md">{{ hoveredCity.name }}</span>
                 </div>
-                <div class="flex gap-4 text-caption">
+                <div class="flex gap-4 text-small">
                   <span>车辆: {{ hoveredCity.vehicles }}</span>
                   <span>订单: {{ hoveredCity.orders }}</span>
                 </div>
@@ -145,15 +145,15 @@
             <div class="map-stats">
               <div class="stat-item">
                 <span class="stat-value">{{ totalVehicles }}</span>
-                <span class="stat-label">在线车辆</span>
+                <span class="stat-label text-micro">在线车辆</span>
               </div>
               <div class="stat-item">
                 <span class="stat-value">{{ cities.length }}</span>
-                <span class="stat-label">活跃城市</span>
+                <span class="stat-label text-micro">活跃城市</span>
               </div>
               <div class="stat-item">
                 <span class="stat-value">{{ routes.length }}</span>
-                <span class="stat-label">运输线路</span>
+                <span class="stat-label text-micro">运输线路</span>
               </div>
             </div>
           </div>
@@ -174,10 +174,10 @@
                 <span class="status-dot" :class="getStatusClass(alert.severity)"></span>
               </div>
               <div class="alert-content">
-                <div class="alert-message text-small">{{ alert.message }}</div>
-                <div class="alert-time text-caption">{{ alert.timestamp }}</div>
+                <div class="alert-message text-body">{{ alert.message }}</div>
+                <div class="alert-time text-small">{{ alert.timestamp }}</div>
               </div>
-              <button class="btn btn-subtle alert-action">处理</button>
+              <button class="btn btn-sm btn-ghost alert-action">处理</button>
             </div>
           </div>
         </div>
@@ -256,7 +256,7 @@ const kpiData = ref([
     change: 12.5, 
     trend: 'up',
     icon: '📦',
-    iconBg: 'rgba(0, 119, 182, 0.15)',
+    iconBg: 'rgba(106, 95, 193, 0.2)',
     sparkline: 'M0,25 L10,20 L20,22 L30,15 L40,18 L50,12 L60,14 L70,8 L80,10 L90,5 L100,8'
   },
   { 
@@ -266,7 +266,7 @@ const kpiData = ref([
     change: 8.3, 
     trend: 'up',
     icon: '🚛',
-    iconBg: 'rgba(16, 185, 129, 0.15)',
+    iconBg: 'rgba(140, 236, 127, 0.2)',
     sparkline: 'M0,20 L10,18 L20,22 L30,16 L40,14 L50,18 L60,12 L70,10 L80,14 L90,8 L100,6'
   },
   { 
@@ -276,7 +276,7 @@ const kpiData = ref([
     change: 2.1, 
     trend: 'up',
     icon: '✅',
-    iconBg: 'rgba(59, 130, 246, 0.15)',
+    iconBg: 'rgba(194, 239, 78, 0.2)',
     sparkline: 'M0,15 L10,12 L20,14 L30,10 L40,8 L50,10 L60,6 L70,8 L80,5 L90,4 L100,3'
   },
   { 
@@ -286,7 +286,7 @@ const kpiData = ref([
     change: 5.2, 
     trend: 'down',
     icon: '⏱️',
-    iconBg: 'rgba(245, 158, 11, 0.15)',
+    iconBg: 'rgba(255, 178, 135, 0.2)',
     sparkline: 'M0,10 L10,12 L20,8 L30,14 L40,10 L50,16 L60,12 L70,18 L80,14 L90,20 L100,18'
   },
 ])
@@ -314,9 +314,9 @@ const routes = computed(() => [
 
 // 流动粒子
 const particles = ref([
-  { x: 470, y: 180, color: 'var(--brand-light)' },
-  { x: 440, y: 220, color: 'var(--brand-light)' },
-  { x: 490, y: 300, color: 'var(--brand-light)' },
+  { x: 470, y: 180, color: 'var(--brand-purple)' },
+  { x: 440, y: 220, color: 'var(--brand-purple)' },
+  { x: 490, y: 300, color: 'var(--brand-purple)' },
   { x: 360, y: 280, color: 'var(--success)' },
   { x: 400, y: 170, color: 'var(--warning)' },
 ])
@@ -367,13 +367,13 @@ function initOrderTrendChart() {
     backgroundColor: 'transparent',
     tooltip: {
       trigger: 'axis',
-      backgroundColor: '#191a1b',
-      borderColor: 'rgba(255,255,255,0.08)',
-      textStyle: { color: '#f7f8f8' },
+      backgroundColor: '#2a1f3d',
+      borderColor: '#362d59',
+      textStyle: { color: '#ffffff', fontFamily: 'Rubik' },
     },
     legend: {
       data: ['订单量', '完成量'],
-      textStyle: { color: '#8a8f98' },
+      textStyle: { color: '#9ca3af', fontFamily: 'Rubik' },
       top: 0,
       right: 0,
     },
@@ -388,13 +388,13 @@ function initOrderTrendChart() {
       type: 'category',
       boundaryGap: false,
       data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
-      axisLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } },
-      axisLabel: { color: '#8a8f98' },
+      axisLine: { lineStyle: { color: '#362d59' } },
+      axisLabel: { color: '#9ca3af', fontFamily: 'Rubik' },
     },
     yAxis: {
       type: 'value',
-      splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } },
-      axisLabel: { color: '#8a8f98' },
+      splitLine: { lineStyle: { color: '#362d59' } },
+      axisLabel: { color: '#9ca3af', fontFamily: 'Rubik' },
     },
     series: [
       {
@@ -402,28 +402,28 @@ function initOrderTrendChart() {
         type: 'line',
         smooth: true,
         data: [1800, 2100, 1950, 2300, 2580, 2200, 1900],
-        lineStyle: { color: '#0077B6', width: 2 },
+        lineStyle: { color: '#6a5fc1', width: 3 },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(0, 119, 182, 0.3)' },
-            { offset: 1, color: 'rgba(0, 119, 182, 0)' },
+            { offset: 0, color: 'rgba(106, 95, 193, 0.4)' },
+            { offset: 1, color: 'rgba(106, 95, 193, 0)' },
           ]),
         },
-        itemStyle: { color: '#0077B6' },
+        itemStyle: { color: '#6a5fc1' },
       },
       {
         name: '完成量',
         type: 'line',
         smooth: true,
         data: [1750, 2050, 1900, 2250, 2500, 2150, 1850],
-        lineStyle: { color: '#10b981', width: 2 },
+        lineStyle: { color: '#8cec7f', width: 3 },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(16, 185, 129, 0.3)' },
-            { offset: 1, color: 'rgba(16, 185, 129, 0)' },
+            { offset: 0, color: 'rgba(140, 236, 127, 0.4)' },
+            { offset: 1, color: 'rgba(140, 236, 127, 0)' },
           ]),
         },
-        itemStyle: { color: '#10b981' },
+        itemStyle: { color: '#8cec7f' },
       },
     ],
   }
@@ -439,15 +439,15 @@ function initVehicleDistChart() {
     backgroundColor: 'transparent',
     tooltip: {
       trigger: 'item',
-      backgroundColor: '#191a1b',
-      borderColor: 'rgba(255,255,255,0.08)',
-      textStyle: { color: '#f7f8f8' },
+      backgroundColor: '#2a1f3d',
+      borderColor: '#362d59',
+      textStyle: { color: '#ffffff', fontFamily: 'Rubik' },
     },
     legend: {
       orient: 'vertical',
       left: 'left',
       top: 'center',
-      textStyle: { color: '#8a8f98' },
+      textStyle: { color: '#9ca3af', fontFamily: 'Rubik' },
     },
     series: [
       {
@@ -457,9 +457,9 @@ function initVehicleDistChart() {
         center: ['60%', '50%'],
         avoidLabelOverlap: false,
         itemStyle: {
-          borderRadius: 6,
-          borderColor: '#191a1b',
-          borderWidth: 2,
+          borderRadius: 8,
+          borderColor: '#1f1633',
+          borderWidth: 3,
         },
         label: {
           show: false,
@@ -468,18 +468,19 @@ function initVehicleDistChart() {
           label: {
             show: true,
             fontSize: 14,
-            fontWeight: 510,
-            color: '#f7f8f8',
+            fontWeight: 600,
+            color: '#ffffff',
+            fontFamily: 'Rubik',
           },
         },
         labelLine: {
           show: false,
         },
         data: [
-          { value: 245, name: '卡车', itemStyle: { color: '#0077B6' } },
-          { value: 12, name: '船舶', itemStyle: { color: '#00B4D8' } },
-          { value: 8, name: '飞机', itemStyle: { color: '#48CAE4' } },
-          { value: 15, name: '火车', itemStyle: { color: '#90E0EF' } },
+          { value: 245, name: '卡车', itemStyle: { color: '#6a5fc1' } },
+          { value: 12, name: '船舶', itemStyle: { color: '#79628c' } },
+          { value: 8, name: '飞机', itemStyle: { color: '#c2ef4e' } },
+          { value: 15, name: '火车', itemStyle: { color: '#ffb287' } },
         ],
       },
     ],
@@ -532,7 +533,7 @@ onUnmounted(() => {
 
 .dashboard {
   padding: var(--space-6);
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -550,6 +551,7 @@ onUnmounted(() => {
 .kpi-card {
   position: relative;
   overflow: hidden;
+  background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(106, 95, 193, 0.1) 100%);
 }
 
 .kpi-header {
@@ -560,17 +562,18 @@ onUnmounted(() => {
 }
 
 .kpi-icon {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-md);
-  font-size: 20px;
+  border-radius: var(--radius-lg);
+  font-size: 22px;
 }
 
 .kpi-value {
   margin-bottom: var(--space-1);
+  color: var(--text-primary);
 }
 
 .kpi-label {
@@ -583,7 +586,7 @@ onUnmounted(() => {
   right: 0;
   width: 100px;
   height: 40px;
-  opacity: 0.5;
+  opacity: 0.4;
 }
 
 /* 图表区域 */
@@ -612,8 +615,8 @@ onUnmounted(() => {
 }
 
 .chart-actions .btn.active {
-  background: var(--brand-subtle);
-  color: var(--brand-light);
+  background: var(--brand-purple);
+  color: var(--text-primary);
 }
 
 /* 可视化区域 */
@@ -638,7 +641,7 @@ onUnmounted(() => {
 .logistics-map {
   position: relative;
   height: 350px;
-  background: linear-gradient(135deg, rgba(0, 119, 182, 0.05) 0%, transparent 100%);
+  background: linear-gradient(135deg, rgba(106, 95, 193, 0.08) 0%, transparent 100%);
   border-radius: var(--radius-md);
   overflow: hidden;
 }
@@ -714,7 +717,7 @@ onUnmounted(() => {
 .map-stats {
   display: flex;
   justify-content: center;
-  gap: var(--space-8);
+  gap: var(--space-10);
   margin-top: var(--space-4);
   padding-top: var(--space-4);
   border-top: 1px solid var(--border-subtle);
@@ -726,14 +729,14 @@ onUnmounted(() => {
 
 .stat-value {
   display: block;
-  font-size: 24px;
-  font-weight: 590;
-  color: var(--brand-light);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--accent-lime);
 }
 
 .stat-label {
-  font-size: 12px;
   color: var(--text-tertiary);
+  margin-top: var(--space-1);
 }
 
 /* 告警卡片 */
@@ -756,14 +759,14 @@ onUnmounted(() => {
   align-items: flex-start;
   gap: var(--space-3);
   padding: var(--space-3);
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.03);
   border-radius: var(--radius-md);
   border-left: 3px solid transparent;
   transition: all var(--transition-fast);
 }
 
 .alert-item:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .alert-high {
@@ -809,28 +812,28 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: var(--radius-sm);
   font-size: 12px;
-  font-weight: 590;
-  background: rgba(255, 255, 255, 0.05);
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.08);
   color: var(--text-secondary);
 }
 
 .rank-1 {
-  background: linear-gradient(135deg, #FFD700, #FFA500);
-  color: #000;
+  background: linear-gradient(135deg, #c2ef4e, #8cec7f);
+  color: var(--bg-primary);
 }
 
 .rank-2 {
-  background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
-  color: #000;
+  background: linear-gradient(135deg, #6a5fc1, #79628c);
+  color: #ffffff;
 }
 
 .rank-3 {
-  background: linear-gradient(135deg, #CD7F32, #8B4513);
-  color: #fff;
+  background: linear-gradient(135deg, #ffb287, #fa7faa);
+  color: var(--bg-primary);
 }
 
 /* 响应式 */

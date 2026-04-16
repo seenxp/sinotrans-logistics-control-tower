@@ -1,74 +1,205 @@
 <template>
-  <div class="equipment-management">
-    <n-grid :cols="4" :x-gap="16" :y-gap="16">
-      <!-- 设备概览统计 -->
-      <n-grid-item :span="4">
-        <n-card title="设备概览">
-          <n-grid :cols="5" :x-gap="16">
-            <n-grid-item v-for="stat in equipmentStats" :key="stat.type">
-              <n-statistic :label="stat.type" :value="stat.total">
-                <template #suffix>
-                  <n-tag :type="stat.online > 0 ? 'success' : 'error'" size="small">
-                    {{ stat.online }}/{{ stat.total }}
-                  </n-tag>
+  <div class="equipment-dashboard">
+    <n-grid :cols="1" :y-gap="16">
+      <!-- 全景图（中国地图） -->
+      <n-grid-item>
+        <n-card title="全景图" class="dashboard-card">
+          <template #header-extra>
+            <n-space>
+              <n-tag type="info">实时数据</n-tag>
+              <n-button size="small" @click="refreshMap">
+                <template #icon>
+                  <n-icon><RefreshOutline /></n-icon>
                 </template>
-              </n-statistic>
-            </n-grid-item>
-          </n-grid>
+              </n-button>
+            </n-space>
+          </template>
+          <PanoramicMap ref="panoramicMapRef" />
         </n-card>
       </n-grid-item>
 
-      <!-- 设备状态分布 -->
-      <n-grid-item :span="2">
-        <n-card title="设备状态分布">
-          <div ref="statusChart" class="chart-container"></div>
+      <!-- 今天平均率（两个饼图） -->
+      <n-grid-item>
+        <n-card title="今天平均率" class="dashboard-card">
+          <TodayAvgPie ref="todayAvgPieRef" />
         </n-card>
       </n-grid-item>
 
-      <!-- 今日任务运行情况 -->
-      <n-grid-item :span="2">
-        <n-card title="今日任务运行情况">
-          <n-grid :cols="3" :x-gap="16">
-            <n-grid-item>
-              <n-statistic label="总任务数" :value="taskStats.total">
-                <template #suffix>
-                  <n-icon size="20" color="#2080f0">
-                    <DocumentTextOutline />
-                  </n-icon>
-                </template>
-              </n-statistic>
-            </n-grid-item>
-            <n-grid-item>
-              <n-statistic label="完成任务" :value="taskStats.completed">
-                <template #suffix>
-                  <n-icon size="20" color="#18a058">
-                    <CheckmarkCircleOutline />
-                  </n-icon>
-                </template>
-              </n-statistic>
-            </n-grid-item>
-            <n-grid-item>
-              <n-statistic label="完成率" :value="taskStats.completionRate" :precision="1">
-                <template #suffix>%</template>
-              </n-statistic>
-            </n-grid-item>
-          </n-grid>
-        </n-card>
+      <!-- 今天情况 -->
+      <n-grid-item>
+        <n-grid :cols="2" :x-gap="16">
+          <!-- 各类设备在线率 -->
+          <n-grid-item>
+            <n-card title="今天情况 - 各类设备在线率" class="dashboard-card">
+              <OnlineRateChart ref="onlineRateChartRef" />
+            </n-card>
+          </n-grid-item>
+
+          <!-- 各类设备任务数 -->
+          <n-grid-item>
+            <n-card title="今天情况 - 各类设备任务数" class="dashboard-card">
+              <TaskStatsChart ref="taskStatsChartRef" />
+            </n-card>
+          </n-grid-item>
+        </n-grid>
       </n-grid-item>
 
-      <!-- 叉车设备列表 -->
-      <n-grid-item :span="4">
-        <n-card title="叉车设备列表">
+      <!-- 本周情况 -->
+      <n-grid-item>
+        <n-grid :cols="2" :x-gap="16">
+          <!-- 本周各类设备任务数 -->
+          <n-grid-item>
+            <n-card title="本周情况 - 各类设备任务数" class="dashboard-card">
+              <template #header-extra>
+                <n-space>
+                  <n-select
+                    v-model:value="weekParkFilter"
+                    :options="parkOptions"
+                    placeholder="选择园区"
+                    size="small"
+                    style="width: 150px"
+                  />
+                  <n-button size="small" @click="refreshWeekTasks">
+                    <template #icon>
+                      <n-icon><RefreshOutline /></n-icon>
+                    </template>
+                  </n-button>
+                </n-space>
+              </template>
+              <TrendChart
+                ref="weekTasksChartRef"
+                title=""
+                time-range="week"
+                data-type="tasks"
+                :park="weekParkFilter"
+              />
+            </n-card>
+          </n-grid-item>
+
+          <!-- 本周各类设备使用时长 -->
+          <n-grid-item>
+            <n-card title="本周情况 - 各类设备使用时长" class="dashboard-card">
+              <template #header-extra>
+                <n-space>
+                  <n-select
+                    v-model:value="weekDurationParkFilter"
+                    :options="parkOptions"
+                    placeholder="选择园区"
+                    size="small"
+                    style="width: 150px"
+                  />
+                  <n-button size="small" @click="refreshWeekDuration">
+                    <template #icon>
+                      <n-icon><RefreshOutline /></n-icon>
+                    </template>
+                  </n-button>
+                </n-space>
+              </template>
+              <TrendChart
+                ref="weekDurationChartRef"
+                title=""
+                time-range="week"
+                data-type="duration"
+                :park="weekDurationParkFilter"
+              />
+            </n-card>
+          </n-grid-item>
+        </n-grid>
+      </n-grid-item>
+
+      <!-- 月度情况 -->
+      <n-grid-item>
+        <n-grid :cols="2" :x-gap="16">
+          <!-- 月度各类设备任务数 -->
+          <n-grid-item>
+            <n-card title="月度情况 - 各类设备任务数" class="dashboard-card">
+              <template #header-extra>
+                <n-space>
+                  <n-select
+                    v-model:value="monthParkFilter"
+                    :options="parkOptions"
+                    placeholder="选择园区"
+                    size="small"
+                    style="width: 150px"
+                  />
+                  <n-button size="small" @click="refreshMonthTasks">
+                    <template #icon>
+                      <n-icon><RefreshOutline /></n-icon>
+                    </template>
+                  </n-button>
+                </n-space>
+              </template>
+              <TrendChart
+                ref="monthTasksChartRef"
+                title=""
+                time-range="month"
+                data-type="tasks"
+                :park="monthParkFilter"
+              />
+            </n-card>
+          </n-grid-item>
+
+          <!-- 月度各类设备使用时长 -->
+          <n-grid-item>
+            <n-card title="月度情况 - 各类设备使用时长" class="dashboard-card">
+              <template #header-extra>
+                <n-space>
+                  <n-select
+                    v-model:value="monthDurationParkFilter"
+                    :options="parkOptions"
+                    placeholder="选择园区"
+                    size="small"
+                    style="width: 150px"
+                  />
+                  <n-button size="small" @click="refreshMonthDuration">
+                    <template #icon>
+                      <n-icon><RefreshOutline /></n-icon>
+                    </template>
+                  </n-button>
+                </n-space>
+              </template>
+              <TrendChart
+                ref="monthDurationChartRef"
+                title=""
+                time-range="month"
+                data-type="duration"
+                :park="monthDurationParkFilter"
+              />
+            </n-card>
+          </n-grid-item>
+        </n-grid>
+      </n-grid-item>
+
+      <!-- 设备列表 -->
+      <n-grid-item>
+        <n-card title="设备实时状态列表" class="dashboard-card">
           <template #header-extra>
             <n-space>
               <n-select
-                v-model:value="warehouseFilter"
-                :options="warehouseOptions"
-                placeholder="选择库房"
+                v-model:value="deviceTypeFilter"
+                :options="deviceTypeOptions"
+                placeholder="设备类型"
                 clearable
-                style="width: 200px"
+                size="small"
+                style="width: 120px"
               />
-              <n-button type="primary" @click="loadForkliftData">
+              <n-select
+                v-model:value="parkFilter"
+                :options="parkOptions"
+                placeholder="选择园区"
+                clearable
+                size="small"
+                style="width: 150px"
+              />
+              <n-select
+                v-model:value="statusFilter"
+                :options="statusOptions"
+                placeholder="设备状态"
+                clearable
+                size="small"
+                style="width: 120px"
+              />
+              <n-button type="primary" size="small" @click="loadDeviceList">
                 <template #icon>
                   <n-icon><RefreshOutline /></n-icon>
                 </template>
@@ -79,10 +210,11 @@
 
           <n-data-table
             :columns="columns"
-            :data="forkliftList"
+            :data="deviceList"
             :pagination="pagination"
             :loading="loading"
             :row-class-name="rowClassName"
+            size="small"
           />
         </n-card>
       </n-grid-item>
@@ -91,349 +223,269 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, h } from 'vue'
-import { 
-  NGrid, NGridItem, NCard, NStatistic, NTag, NSpace, 
-  NButton, NIcon, NSelect, NDataTable, useMessage 
+import { ref, onMounted, h } from 'vue'
+import {
+  NGrid, NGridItem, NCard, NTag, NButton, NIcon, NSpace,
+  NSelect, NDataTable, useMessage
 } from 'naive-ui'
-import { 
-  DocumentTextOutline, CheckmarkCircleOutline, RefreshOutline,
-  HardwareChipOutline 
-} from '@vicons/ionicons5'
-import * as echarts from 'echarts'
-import { equipmentApi } from '@/services/api'
+import { RefreshOutline } from '@vicons/ionicons5'
+import PanoramicMap from '@/components/equipment/PanoramicMap.vue'
+import TodayAvgPie from '@/components/equipment/TodayAvgPie.vue'
+import OnlineRateChart from '@/components/equipment/OnlineRateChart.vue'
+import TrendChart from '@/components/equipment/TrendChart.vue'
+import TaskStatsChart from '@/components/equipment/TaskStatsChart.vue'
 
 const message = useMessage()
 
-// 设备统计数据
-const equipmentStats = ref([
-  { type: 'AGV', total: 45, online: 42, offline: 3 },
-  { type: 'AGF', total: 28, online: 25, offline: 3 },
-  { type: 'CTU', total: 36, online: 33, offline: 3 },
-  { type: '盘点机器', total: 15, online: 12, offline: 3 },
-  { type: '智能叉车', total: 32, online: 28, offline: 4 },
-])
+// 组件引用
+const panoramicMapRef = ref()
+const todayAvgPieRef = ref()
+const onlineRateChartRef = ref()
+const weekTasksChartRef = ref()
+const weekDurationChartRef = ref()
+const monthTasksChartRef = ref()
+const monthDurationChartRef = ref()
+const taskStatsChartRef = ref()
 
-// 任务统计数据
-const taskStats = ref({
-  total: 1250,
-  completed: 1180,
-  completionRate: 94.4,
-})
+// 筛选条件
+const weekParkFilter = ref('all')
+const weekDurationParkFilter = ref('all')
+const monthParkFilter = ref('all')
+const monthDurationParkFilter = ref('all')
+const deviceTypeFilter = ref(null)
+const parkFilter = ref(null)
+const statusFilter = ref(null)
 
-// 叉车列表数据
-const forkliftList = ref([])
-const loading = ref(false)
-const warehouseFilter = ref(null)
-const statusChart = ref<HTMLElement | null>(null)
-
-// 库房选项
-const warehouseOptions = [
-  { label: '北京中央仓库', value: 'WH001' },
-  { label: '上海分拨中心', value: 'WH002' },
-  { label: '广州南部中心', value: 'WH003' },
-  { label: '成都西部中心', value: 'WH004' },
-  { label: '武汉中部中心', value: 'WH005' },
+// 园区选项
+const parkOptions = [
+  { label: '全部园区', value: 'all' },
+  { label: '上海奉贤', value: 'shanghai' },
+  { label: '广州东勤', value: 'guangzhou' },
+  { label: '重庆园区', value: 'chongqing' }
 ]
+
+// 设备类型选项
+const deviceTypeOptions = [
+  { label: '小悠盘', value: 'xiaoyou' },
+  { label: '小寻叉', value: 'xiaoxun' },
+  { label: 'AGV', value: 'agv' },
+  { label: 'AGF', value: 'agf' },
+  { label: 'CTU', value: 'ctu' },
+  { label: '自动线体', value: 'autoLine' },
+  { label: 'DWS', value: 'dws' }
+]
+
+// 设备状态选项
+const statusOptions = [
+  { label: '在线', value: 'online' },
+  { label: '离线', value: 'offline' },
+  { label: '故障', value: 'error' },
+  { label: '空闲', value: 'idle' },
+  { label: '执行任务', value: 'working' }
+]
+
+// 设备列表数据
+const deviceList = ref([])
+const loading = ref(false)
 
 // 分页配置
 const pagination = {
   pageSize: 10,
   showSizePicker: true,
-  pageSizes: [10, 20, 50],
+  pageSizes: [10, 20, 50]
 }
 
 // 表格列定义
 const columns = [
   {
-    title: '叉车编号',
-    key: 'FltNo',
-    width: 120,
-    fixed: 'left',
-  },
-  {
-    title: '叉车名称',
-    key: 'FltName',
-    width: 120,
-  },
-  {
-    title: '所属库房',
-    key: 'WarehouseCode',
-    width: 120,
-  },
-  {
-    title: '主控状态',
-    key: 'OnlineStatusText',
+    title: '设备编号',
+    key: 'deviceId',
     width: 100,
-    render(row: any) {
-      const type = row.OnlineStatusText === '在线' ? 'success' : 'error'
-      return h(NTag, { type, size: 'small' }, { default: () => row.OnlineStatusText })
-    },
+    fixed: 'left'
   },
   {
-    title: 'SLAM状态',
-    key: 'SlamOnLineStatusText',
-    width: 100,
-    render(row: any) {
-      const type = row.SlamOnLineStatusText === '在线' ? 'success' : 'error'
-      return h(NTag, { type, size: 'small' }, { default: () => row.SlamOnLineStatusText })
-    },
+    title: '设备名称',
+    key: 'deviceName',
+    width: 120
   },
   {
-    title: '叉车状态',
-    key: 'StatusText',
+    title: '设备类型',
+    key: 'deviceType',
     width: 100,
     render(row: any) {
       const typeMap: Record<string, string> = {
-        '空闲': 'info',
-        '执行任务': 'success',
-        '故障': 'error',
-        '充电中': 'warning',
+        'xiaoyou': '小悠盘',
+        'xiaoxun': '小寻叉',
+        'agv': 'AGV',
+        'agf': 'AGF',
+        'ctu': 'CTU',
+        'autoLine': '自动线体',
+        'dws': 'DWS'
       }
-      const type = typeMap[row.StatusText] || 'default'
-      return h(NTag, { type, size: 'small' }, { default: () => row.StatusText })
-    },
+      return h(NTag, { size: 'small' }, { default: () => typeMap[row.deviceType] || row.deviceType })
+    }
   },
   {
-    title: '叉车型号',
-    key: 'ModelText',
-    width: 100,
+    title: '所属园区',
+    key: 'park',
+    width: 100
   },
   {
-    title: '负责人',
-    key: 'Owners',
+    title: '设备状态',
+    key: 'status',
     width: 100,
+    render(row: any) {
+      const statusMap: Record<string, { text: string; type: string }> = {
+        'online': { text: '在线', type: 'success' },
+        'offline': { text: '离线', type: 'error' },
+        'error': { text: '故障', type: 'warning' },
+        'idle': { text: '空闲', type: 'info' },
+        'working': { text: '执行任务', type: 'success' }
+      }
+      const status = statusMap[row.status] || { text: row.status, type: 'default' }
+      return h(NTag, { type: status.type as any, size: 'small' }, { default: () => status.text })
+    }
+  },
+  {
+    title: '当前任务',
+    key: 'currentTask',
+    width: 120
+  },
+  {
+    title: '今日任务数',
+    key: 'todayTasks',
+    width: 100
+  },
+  {
+    title: '今日使用时长',
+    key: 'todayDuration',
+    width: 120,
+    render(row: any) {
+      return `${row.todayDuration}分钟`
+    }
   },
   {
     title: '最近在线时间',
-    key: 'LastOnlineTime',
-    width: 180,
-  },
-  {
-    title: '异常描述',
-    key: 'AbnormalDescription',
-    width: 150,
-    render(row: any) {
-      if (row.AbnormalDescription) {
-        return h(NTag, { type: 'error', size: 'small' }, { default: () => row.AbnormalDescription })
-      }
-      return h(NTag, { type: 'success', size: 'small' }, { default: () => '正常' })
-    },
-  },
+    key: 'lastOnlineTime',
+    width: 150
+  }
 ]
 
 // 行样式
 function rowClassName(row: any) {
-  if (row.AbnormalDescription) {
+  if (row.status === 'error') {
     return 'error-row'
+  }
+  if (row.status === 'offline') {
+    return 'offline-row'
   }
   return ''
 }
 
-// 初始化状态分布图表
-function initStatusChart() {
-  if (!statusChart.value) return
-  
-  const chart = echarts.init(statusChart.value)
-  const option = {
-    tooltip: {
-      trigger: 'item',
-    },
-    legend: {
-      orient: 'vertical',
-      right: 'right',
-    },
-    series: [
-      {
-        name: '设备状态',
-        type: 'pie',
-        radius: ['40%', '70%'],
-        avoidLabelOverlap: false,
-        itemStyle: {
-          borderRadius: 10,
-          borderColor: '#fff',
-          borderWidth: 2,
-        },
-        label: {
-          show: false,
-          position: 'center',
-        },
-        emphasis: {
-          label: {
-            show: true,
-            fontSize: 20,
-            fontWeight: 'bold',
-          },
-        },
-        labelLine: {
-          show: false,
-        },
-        data: [
-          { value: 140, name: '在线', itemStyle: { color: '#18a058' } },
-          { value: 16, name: '离线', itemStyle: { color: '#d03050' } },
-          { value: 8, name: '故障', itemStyle: { color: '#f0a020' } },
-          { value: 22, name: '空闲', itemStyle: { color: '#2080f0' } },
-        ],
-      },
-    ],
-  }
-  chart.setOption(option)
-  
-  // 响应窗口大小变化
-  window.addEventListener('resize', () => {
-    chart.resize()
-  })
+// 刷新地图
+function refreshMap() {
+  panoramicMapRef.value?.updateData([])
+  message.success('地图数据已刷新')
 }
 
-// 加载叉车数据
-async function loadForkliftData() {
+// 刷新本周任务
+function refreshWeekTasks() {
+  weekTasksChartRef.value?.refresh()
+  message.success('本周任务数据已刷新')
+}
+
+// 刷新本周时长
+function refreshWeekDuration() {
+  weekDurationChartRef.value?.refresh()
+  message.success('本周时长数据已刷新')
+}
+
+// 刷新月度任务
+function refreshMonthTasks() {
+  monthTasksChartRef.value?.refresh()
+  message.success('月度任务数据已刷新')
+}
+
+// 刷新月度时长
+function refreshMonthDuration() {
+  monthDurationChartRef.value?.refresh()
+  message.success('月度时长数据已刷新')
+}
+
+// 加载设备列表
+async function loadDeviceList() {
   loading.value = true
-  
+
   try {
-    // 调用后端接口
-    const response = await equipmentApi.getForklifts({ warehouseCode: warehouseFilter.value })
-    
-    if (response.success) {
-      forkliftList.value = response.data || []
-      message.success('数据加载成功')
-    } else {
-      // 如果接口调用失败，使用模拟数据
-      console.warn('接口调用失败，使用模拟数据:', response.message)
-      loadMockData()
-    }
+    // 模拟API调用
+    setTimeout(() => {
+      deviceList.value = generateMockDeviceList()
+      loading.value = false
+      message.success('设备列表加载成功')
+    }, 500)
   } catch (error) {
-    console.error('加载叉车数据失败:', error)
-    // 发生错误时使用模拟数据
-    loadMockData()
-  } finally {
+    console.error('加载设备列表失败:', error)
     loading.value = false
+    message.error('加载设备列表失败')
   }
 }
 
-// 加载模拟数据
-function loadMockData() {
-  // 模拟API调用延迟
-  setTimeout(() => {
-    forkliftList.value = [
-      {
-        Id: 113,
-        FltNo: 'F001',
-        FltName: 'F001',
-        WarehouseCode: 'WH002010',
-        OnlineStatusText: '离线',
-        SlamOnLineStatusText: '离线',
-        ScanOnLineStatusText: '离线',
-        StatusText: '空闲',
-        UpgradeText: '初始状态',
-        Ip: '10.3.75.232',
-        SlamIp: '10.125.129.88',
-        ModelText: '林德',
-        SlamModelText: '镭神1',
-        ScanModelText: '默认',
-        Owners: '管理员',
-        EnabledText: '启用',
-        Enabled: true,
-        Remark: null,
-        SlamVersion: '1.11.18',
-        ShelfPushStatus: 0,
-        ShelfPushStatusText: '初始状态',
-        Model: 'LinDe',
-        SlamModel: 'LeiShen1',
-        ScanModel: 'Scan1',
-        SlamLastPullTime: '2025-02-21 11:22:57',
-        ScanLastReportTime: '2026-04-13 10:22:13',
-        LastOnlineTime: '2025-09-23 16:23:34',
-        PlateNumber: '辽A0F001',
-        AbnormalId: '32',
-        AbnormalDescription: '故障',
-      },
-      {
-        Id: 114,
-        FltNo: 'F002',
-        FltName: 'F002',
-        WarehouseCode: 'WH002010',
-        OnlineStatusText: '在线',
-        SlamOnLineStatusText: '在线',
-        ScanOnLineStatusText: '在线',
-        StatusText: '执行任务',
-        UpgradeText: '初始状态',
-        Ip: '10.3.75.233',
-        SlamIp: '10.125.129.89',
-        ModelText: '林德',
-        SlamModelText: '镭神1',
-        ScanModelText: '默认',
-        Owners: '管理员',
-        EnabledText: '启用',
-        Enabled: true,
-        Remark: null,
-        SlamVersion: '1.11.18',
-        ShelfPushStatus: 0,
-        ShelfPushStatusText: '初始状态',
-        Model: 'LinDe',
-        SlamModel: 'LeiShen1',
-        ScanModel: 'Scan1',
-        SlamLastPullTime: '2025-02-21 11:22:57',
-        ScanLastReportTime: '2026-04-13 10:22:13',
-        LastOnlineTime: '2026-04-16 09:45:12',
-        PlateNumber: '辽A0F002',
-        AbnormalId: '',
-        AbnormalDescription: '',
-      },
-      {
-        Id: 115,
-        FltNo: 'F003',
-        FltName: 'F003',
-        WarehouseCode: 'WH001001',
-        OnlineStatusText: '在线',
-        SlamOnLineStatusText: '在线',
-        ScanOnLineStatusText: '在线',
-        StatusText: '空闲',
-        UpgradeText: '初始状态',
-        Ip: '10.3.75.234',
-        SlamIp: '10.125.129.90',
-        ModelText: '林德',
-        SlamModelText: '镭神1',
-        ScanModelText: '默认',
-        Owners: '操作员A',
-        EnabledText: '启用',
-        Enabled: true,
-        Remark: '正常运行',
-        SlamVersion: '1.11.18',
-        ShelfPushStatus: 1,
-        ShelfPushStatusText: '已下发',
-        Model: 'LinDe',
-        SlamModel: 'LeiShen1',
-        ScanModel: 'Scan1',
-        SlamLastPullTime: '2026-04-16 08:30:00',
-        ScanLastReportTime: '2026-04-16 09:50:00',
-        LastOnlineTime: '2026-04-16 09:50:00',
-        PlateNumber: '京A0F003',
-        AbnormalId: '',
-        AbnormalDescription: '',
-      },
-    ]
-    message.success('数据加载成功（模拟数据）')
-  }, 500)
+// 生成模拟设备列表数据
+function generateMockDeviceList() {
+  const devices = []
+  const types = ['xiaoyou', 'xiaoxun', 'agv', 'agf', 'ctu', 'autoLine', 'dws']
+  const parks = ['上海奉贤', '广州东勤', '重庆园区']
+  const statuses = ['online', 'offline', 'error', 'idle', 'working']
+  const tasks = ['入库作业', '出库作业', '盘点作业', '搬运作业', '扫描作业', '']
+
+  for (let i = 1; i <= 50; i++) {
+    const type = types[Math.floor(Math.random() * types.length)]
+    const status = statuses[Math.floor(Math.random() * statuses.length)]
+    const park = parks[Math.floor(Math.random() * parks.length)]
+
+    devices.push({
+      deviceId: `${type.toUpperCase()}-${String(i).padStart(4, '0')}`,
+      deviceName: `${type === 'xiaoyou' ? '小悠盘' : type === 'xiaoxun' ? '小寻叉' : type.toUpperCase()}-${i}`,
+      deviceType: type,
+      park: park,
+      status: status,
+      currentTask: status === 'working' ? tasks[Math.floor(Math.random() * (tasks.length - 1))] : '-',
+      todayTasks: Math.floor(Math.random() * 50) + 10,
+      todayDuration: Math.floor(Math.random() * 480) + 60,
+      lastOnlineTime: new Date(Date.now() - Math.random() * 3600000).toLocaleString()
+    })
+  }
+
+  return devices
 }
 
 // 组件挂载时加载数据
 onMounted(() => {
-  loadForkliftData()
-  initStatusChart()
+  loadDeviceList()
 })
 </script>
 
 <style lang="scss" scoped>
-.equipment-management {
+.equipment-dashboard {
   padding: 16px;
+  background: #f5f7fa;
+  min-height: 100vh;
 }
 
-.chart-container {
-  height: 300px;
-  width: 100%;
+.dashboard-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+
+  :deep(.n-card__content) {
+    padding: 16px;
+  }
 }
 
 :deep(.error-row) {
-  background-color: rgba(208, 48, 80, 0.1) !important;
+  background-color: rgba(244, 67, 54, 0.1) !important;
+}
+
+:deep(.offline-row) {
+  background-color: rgba(158, 158, 158, 0.1) !important;
 }
 </style>

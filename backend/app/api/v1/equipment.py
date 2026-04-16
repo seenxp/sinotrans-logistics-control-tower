@@ -4,7 +4,8 @@
 from fastapi import APIRouter, Query, HTTPException
 from typing import Optional, List
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import datetime, timedelta
+import random
 
 router = APIRouter()
 
@@ -56,6 +57,316 @@ class TaskStats(BaseModel):
     total: int
     completed: int
     completion_rate: float
+
+
+# 设备类型定义
+DEVICE_TYPES = [
+    {"code": "xiaoyou", "name": "小悠盘"},
+    {"code": "xiaoxun", "name": "小寻叉"},
+    {"code": "agv", "name": "AGV"},
+    {"code": "agf", "name": "AGF"},
+    {"code": "ctu", "name": "CTU"},
+    {"code": "autoLine", "name": "自动线体"},
+    {"code": "dws", "name": "DWS"}
+]
+
+# 园区定义
+PARKS = [
+    {"code": "shanghai", "name": "上海奉贤", "location": [121.47, 31.23]},
+    {"code": "guangzhou", "name": "广州东勤", "location": [113.25, 23.13]},
+    {"code": "chongqing", "name": "重庆园区", "location": [106.55, 29.56]}
+]
+
+
+@router.get("/dashboard", summary="获取设备看板数据")
+async def get_dashboard():
+    """
+    获取设备看板全景数据
+    """
+    try:
+        # 生成模拟数据
+        device_stats = []
+        for device_type in DEVICE_TYPES:
+            total = random.randint(20, 60)
+            online = random.randint(int(total * 0.8), total)
+            device_stats.append({
+                "type": device_type["name"],
+                "code": device_type["code"],
+                "total": total,
+                "online": online,
+                "offline": total - online
+            })
+
+        park_stats = []
+        for park in PARKS:
+            park_stats.append({
+                "code": park["code"],
+                "name": park["name"],
+                "location": park["location"],
+                "deviceCount": random.randint(80, 200),
+                "onlineCount": random.randint(60, 180),
+                "taskCount": random.randint(50, 150)
+            })
+
+        return {
+            "code": 200,
+            "message": "操作成功",
+            "data": {
+                "deviceStats": device_stats,
+                "parkStats": park_stats,
+                "totalDevices": sum(d["total"] for d in device_stats),
+                "totalOnline": sum(d["online"] for d in device_stats),
+                "todayTasks": random.randint(800, 1500),
+                "completedTasks": random.randint(700, 1400)
+            },
+            "timestamp": int(datetime.now().timestamp() * 1000),
+            "success": True
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/parks", summary="获取园区列表")
+async def get_parks():
+    """
+    获取所有物流园区列表
+    """
+    try:
+        return {
+            "code": 200,
+            "message": "操作成功",
+            "data": PARKS,
+            "timestamp": int(datetime.now().timestamp() * 1000),
+            "success": True
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/device-types", summary="获取设备类型列表")
+async def get_device_types():
+    """
+    获取所有设备类型列表
+    """
+    try:
+        return {
+            "code": 200,
+            "message": "操作成功",
+            "data": DEVICE_TYPES,
+            "timestamp": int(datetime.now().timestamp() * 1000),
+            "success": True
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/online-rate", summary="获取设备在线率")
+async def get_online_rate(
+    park: Optional[str] = Query(None, description="园区代码")
+):
+    """
+    获取各类设备在线率统计
+    """
+    try:
+        result = []
+        for device_type in DEVICE_TYPES:
+            total = random.randint(20, 60)
+            online = random.randint(int(total * 0.8), total)
+            result.append({
+                "type": device_type["name"],
+                "code": device_type["code"],
+                "total": total,
+                "online": online,
+                "rate": round(online / total * 100, 1)
+            })
+
+        return {
+            "code": 200,
+            "message": "操作成功",
+            "data": result,
+            "timestamp": int(datetime.now().timestamp() * 1000),
+            "success": True
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/usage-duration", summary="获取设备使用时长")
+async def get_usage_duration(
+    device_type: Optional[str] = Query(None, description="设备类型"),
+    time_range: Optional[str] = Query("today", description="时间范围: today/week/month")
+):
+    """
+    获取设备使用时长统计
+    """
+    try:
+        # 生成使用时长分布数据
+        duration_distribution = [
+            {"range": "≤2h", "count": random.randint(30, 50)},
+            {"range": "2-4h", "count": random.randint(20, 40)},
+            {"range": "4-6h", "count": random.randint(10, 25)},
+            {"range": ">6h", "count": random.randint(5, 15)}
+        ]
+
+        return {
+            "code": 200,
+            "message": "操作成功",
+            "data": {
+                "distribution": duration_distribution,
+                "avgDuration": random.randint(180, 360),  # 分钟
+                "maxDuration": random.randint(420, 540),
+                "minDuration": random.randint(60, 120)
+            },
+            "timestamp": int(datetime.now().timestamp() * 1000),
+            "success": True
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/trend/tasks", summary="获取任务趋势数据")
+async def get_task_trend(
+    time_range: str = Query("week", description="时间范围: week/month"),
+    park: Optional[str] = Query(None, description="园区代码")
+):
+    """
+    获取设备任务趋势数据
+    """
+    try:
+        dates = []
+        now = datetime.now()
+
+        if time_range == "week":
+            for i in range(6, -1, -1):
+                date = now - timedelta(days=i)
+                dates.append(date.strftime("%m-%d"))
+        else:
+            for i in range(11, -1, -1):
+                date = now - timedelta(days=i * 30)
+                dates.append(date.strftime("%Y-%m"))
+
+        series = []
+        for device_type in DEVICE_TYPES:
+            data = []
+            for _ in dates:
+                data.append(random.randint(50, 150))
+            series.append({
+                "name": device_type["name"],
+                "data": data
+            })
+
+        # 异常任务
+        abnormal_data = [random.randint(5, 20) for _ in dates]
+
+        return {
+            "code": 200,
+            "message": "操作成功",
+            "data": {
+                "dates": dates,
+                "series": series,
+                "abnormal": abnormal_data
+            },
+            "timestamp": int(datetime.now().timestamp() * 1000),
+            "success": True
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/trend/duration", summary="获取使用时长趋势")
+async def get_duration_trend(
+    time_range: str = Query("week", description="时间范围: week/month"),
+    park: Optional[str] = Query(None, description="园区代码")
+):
+    """
+    获取设备使用时长趋势数据
+    """
+    try:
+        dates = []
+        now = datetime.now()
+
+        if time_range == "week":
+            for i in range(6, -1, -1):
+                date = now - timedelta(days=i)
+                dates.append(date.strftime("%m-%d"))
+        else:
+            for i in range(11, -1, -1):
+                date = now - timedelta(days=i * 30)
+                dates.append(date.strftime("%Y-%m"))
+
+        series = []
+        for device_type in DEVICE_TYPES:
+            data = []
+            for _ in dates:
+                data.append(random.randint(120, 420))  # 分钟
+            series.append({
+                "name": device_type["name"],
+                "data": data
+            })
+
+        return {
+            "code": 200,
+            "message": "操作成功",
+            "data": {
+                "dates": dates,
+                "series": series
+            },
+            "timestamp": int(datetime.now().timestamp() * 1000),
+            "success": True
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/devices", summary="获取设备列表")
+async def get_devices(
+    device_type: Optional[str] = Query(None, description="设备类型"),
+    park: Optional[str] = Query(None, description="园区代码"),
+    status: Optional[str] = Query(None, description="设备状态")
+):
+    """
+    获取设备实时状态列表
+    """
+    try:
+        devices = []
+        statuses = ["online", "offline", "error", "idle", "working"]
+
+        for i in range(1, 51):
+            dev_type = random.choice(DEVICE_TYPES)
+            dev_status = random.choice(statuses)
+            dev_park = random.choice(PARKS)
+
+            devices.append({
+                "deviceId": f"{dev_type['code'].upper()}-{str(i).padStart(4, '0')}",
+                "deviceName": f"{dev_type['name']}-{i}",
+                "deviceType": dev_type["code"],
+                "park": dev_park["name"],
+                "status": dev_status,
+                "currentTask": random.choice(["入库作业", "出库作业", "盘点作业", "搬运作业", "扫描作业", "-"]) if dev_status == "working" else "-",
+                "todayTasks": random.randint(10, 60),
+                "todayDuration": random.randint(60, 480),
+                "lastOnlineTime": (datetime.now() - timedelta(minutes=random.randint(0, 60))).strftime("%Y-%m-%d %H:%M:%S")
+            })
+
+        # 筛选
+        if device_type:
+            devices = [d for d in devices if d["deviceType"] == device_type]
+        if park:
+            park_name = next((p["name"] for p in PARKS if p["code"] == park), None)
+            if park_name:
+                devices = [d for d in devices if d["park"] == park_name]
+        if status:
+            devices = [d for d in devices if d["status"] == status]
+
+        return {
+            "code": 200,
+            "message": "操作成功",
+            "data": devices,
+            "timestamp": int(datetime.now().timestamp() * 1000),
+            "success": True
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/forklifts", summary="获取叉车列表")

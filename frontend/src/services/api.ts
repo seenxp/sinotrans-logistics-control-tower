@@ -98,12 +98,23 @@ export const predictionApi = {
   getModels: () => apiClient.get('/predictions/models'),
 }
 
-// 设备API（叉车等）
+// 设备API
 export const equipmentApi = {
+  // 基础接口
   getForklifts: (params?: any) => apiClient.get('/equipment/forklifts', { params }),
   getForkliftById: (id: string) => apiClient.get(`/equipment/forklifts/${id}`),
   getEquipmentStats: () => apiClient.get('/equipment/stats'),
   getTaskStats: () => apiClient.get('/equipment/tasks/stats'),
+  
+  // 新增看板接口
+  getDashboard: () => apiClient.get('/equipment/dashboard'),
+  getParks: () => apiClient.get('/equipment/parks'),
+  getDeviceTypes: () => apiClient.get('/equipment/device-types'),
+  getOnlineRate: (params?: any) => apiClient.get('/equipment/online-rate', { params }),
+  getUsageDuration: (params?: any) => apiClient.get('/equipment/usage-duration', { params }),
+  getTaskTrend: (params?: any) => apiClient.get('/equipment/trend/tasks', { params }),
+  getDurationTrend: (params?: any) => apiClient.get('/equipment/trend/duration', { params }),
+  getDevices: (params?: any) => apiClient.get('/equipment/devices', { params }),
 }
 
 // 控制台API

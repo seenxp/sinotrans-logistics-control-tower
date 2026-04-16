@@ -14,7 +14,7 @@
               <n-icon><RefreshOutline /></n-icon>
             </template>
             刷新
-          </button>
+          </n-button>
         </n-space>
       </template>
       

@@ -19,7 +19,7 @@
 import { ref, h } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { NIcon } from 'naive-ui'
-import { DocumentTextOutline, CarOutline, HomeOutline } from '@vicons/ionicons5'
+import { DocumentTextOutline, CarOutline, HomeOutline, HardwareChipOutline } from '@vicons/ionicons5'
 
 const router = useRouter()
 const route = useRoute()
@@ -36,6 +36,11 @@ const menuOptions = [
     label: '车辆管理',
     key: 'vehicles',
     icon: () => h(NIcon, null, { default: () => h(CarOutline) }),
+  },
+  {
+    label: '设备管理',
+    key: 'equipment',
+    icon: () => h(NIcon, null, { default: () => h(HardwareChipOutline) }),
   },
   {
     label: '仓库管理',

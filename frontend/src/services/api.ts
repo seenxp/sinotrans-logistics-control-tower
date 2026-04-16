@@ -98,6 +98,14 @@ export const predictionApi = {
   getModels: () => apiClient.get('/predictions/models'),
 }
 
+// 设备API（叉车等）
+export const equipmentApi = {
+  getForklifts: (params?: any) => apiClient.get('/equipment/forklifts', { params }),
+  getForkliftById: (id: string) => apiClient.get(`/equipment/forklifts/${id}`),
+  getEquipmentStats: () => apiClient.get('/equipment/stats'),
+  getTaskStats: () => apiClient.get('/equipment/tasks/stats'),
+}
+
 // 控制台API
 export const dashboardApi = {
   getOverview: () => apiClient.get('/dashboard/overview'),

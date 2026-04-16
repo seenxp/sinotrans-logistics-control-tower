@@ -71,6 +71,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '车辆管理' },
       },
       {
+        path: 'operations/equipment',
+        name: 'EquipmentManagement',
+        component: () => import('@/views/operations/equipment.vue'),
+        meta: { title: '设备管理' },
+      },
+      {
         path: 'operations/warehouses',
         name: 'WarehouseManagement',
         component: () => import('@/views/operations/warehouses.vue'),

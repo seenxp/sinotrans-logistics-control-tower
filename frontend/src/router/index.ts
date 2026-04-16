@@ -83,6 +83,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '仓库管理' },
       },
       {
+        path: 'api-docs',
+        name: 'ApiDocs',
+        component: () => import('@/views/api-docs.vue'),
+        meta: { title: '开放接口' },
+      },
+      {
         path: 'data',
         name: 'Data',
         component: () => import('@/views/data/index.vue'),

@@ -84,6 +84,8 @@ import {
   RefreshOutline,
   ScanOutline,
   PersonOutline,
+  ConstructOutline,
+  CodeOutline,
 } from '@vicons/ionicons5'
 
 const router = useRouter()
@@ -100,6 +102,7 @@ const activeKey = computed(() => {
   if (path.startsWith('/operations')) return path.split('/')[2] || 'orders'
   if (path === '/dashboard') return 'dashboard'
   if (path === '/monitor') return 'monitor'
+  if (path === '/api-docs') return 'api-docs'
   if (path === '/data') return 'data'
   return 'dashboard'
 })
@@ -122,8 +125,11 @@ const breadcrumbs = computed(() => {
     if (subPath === 'orders') items.push({ path: '/operations/orders', title: '订单管理' })
     else if (subPath === 'vehicles') items.push({ path: '/operations/vehicles', title: '车辆管理' })
     else if (subPath === 'warehouses') items.push({ path: '/operations/warehouses', title: '仓库管理' })
+    else if (subPath === 'equipment') items.push({ path: '/operations/equipment', title: '设备管理' })
   } else if (path === '/monitor') {
     items.push({ path: '/monitor', title: '实时监控' })
+  } else if (path === '/api-docs') {
+    items.push({ path: '/api-docs', title: '开放接口' })
   } else if (path === '/data') {
     items.push({ path: '/data', title: '数据治理' })
   }
@@ -190,7 +196,17 @@ const menuOptions = [
         key: 'warehouses',
         icon: () => h(NIcon, null, { default: () => h(BusinessOutline) }),
       },
+      {
+        label: '设备管理',
+        key: 'equipment',
+        icon: () => h(NIcon, null, { default: () => h(ConstructOutline) }),
+      },
     ],
+  },
+  {
+    label: '开放接口',
+    key: 'api-docs',
+    icon: () => h(NIcon, null, { default: () => h(CodeOutline) }),
   },
   {
     label: '数据治理',
@@ -236,6 +252,12 @@ function handleMenuSelect(key: string) {
       break
     case 'warehouses':
       router.push('/operations/warehouses')
+      break
+    case 'equipment':
+      router.push('/operations/equipment')
+      break
+    case 'api-docs':
+      router.push('/api-docs')
       break
     case 'data':
       router.push('/data')

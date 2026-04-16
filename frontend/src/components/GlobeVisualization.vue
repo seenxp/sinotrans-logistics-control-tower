@@ -1,5 +1,9 @@
 <template>
   <div class="globe-container" ref="globeContainer">
+    <!-- 调试信息 -->
+    <div style="position: absolute; top: 0; left: 0; color: white; font-size: 12px; z-index: 1000;">
+      renderSuccess: {{ renderSuccess }} (value: {{ renderSuccess.value }})
+    </div>
     <!-- 降级方案：始终显示，3D地球成功时覆盖 -->
     <div v-show="!renderSuccess" class="globe-fallback">
       <div class="fallback-content">
@@ -142,35 +146,43 @@ let OrbitControls: any = null
 let initTimeout: any = null
 
 async function initThreeJS() {
+  console.log('[GlobeVisualization] initThreeJS called, webglSupported:', webglSupported.value)
   // 添加超时保护，如果3秒内没有初始化成功，使用降级方案
   initTimeout = setTimeout(() => {
     if (!renderer) {
-      console.warn('Three.js initialization timeout, using fallback')
+      console.warn('[GlobeVisualization] Three.js initialization timeout, using fallback')
       webglSupported.value = false
     }
   }, 3000)
   
   if (!webglSupported.value) {
+    console.log('[GlobeVisualization] WebGL not supported, skipping Three.js')
     clearTimeout(initTimeout)
     return
   }
   
   try {
+    console.log('[GlobeVisualization] Loading Three.js modules...')
     THREE = await import('three')
     const OrbitControlsModule = await import('three/examples/jsm/controls/OrbitControls.js')
     OrbitControls = OrbitControlsModule.OrbitControls
+    console.log('[GlobeVisualization] Three.js modules loaded successfully')
     
     // 等待DOM渲染完成
     await new Promise(resolve => setTimeout(resolve, 100))
     
     if (globeCanvas.value) {
+      console.log('[GlobeVisualization] Globe canvas element found, initializing scene...')
       initScene()
+      // 确保 renderSuccess 设置为 true
+      renderSuccess.value = true
+      console.log('[GlobeVisualization] renderSuccess forced to true after initScene')
       clearTimeout(initTimeout)
     } else {
       throw new Error('Canvas element not found')
     }
   } catch (error) {
-    console.error('Failed to load Three.js:', error)
+    console.error('[GlobeVisualization] Failed to load Three.js:', error)
     clearTimeout(initTimeout)
     webglSupported.value = false
   }
@@ -414,11 +426,23 @@ function createRoutes(): THREE.Group {
 
 // 初始化场景
 function initScene() {
-  if (!globeCanvas.value) return
+  console.log('[GlobeVisualization] initScene started')
+  if (!globeCanvas.value) {
+    console.error('[GlobeVisualization] globeCanvas.value is null')
+    return
+  }
   
   const container = globeCanvas.value
-  const width = container.clientWidth
-  const height = container.clientHeight
+  let width = container.clientWidth
+  let height = container.clientHeight
+  console.log('[GlobeVisualization] Initial container dimensions:', width, height)
+  
+  // 如果容器尺寸为0，使用默认尺寸
+  if (width === 0 || height === 0) {
+    console.warn('[GlobeVisualization] Container dimensions are 0, using default size 500x500')
+    width = 500
+    height = 500
+  }
   
   // 创建场景
   scene = new THREE.Scene()
@@ -433,6 +457,7 @@ function initScene() {
   renderer.setSize(width, height)
   renderer.setPixelRatio(window.devicePixelRatio)
   container.appendChild(renderer.domElement)
+  console.log('[GlobeVisualization] WebGL renderer created and appended')
   
   // 创建控制器
   controls = new OrbitControls(camera, renderer.domElement)
@@ -486,8 +511,10 @@ function initScene() {
   
   // 标记渲染成功
   renderSuccess.value = true
+  console.log('[GlobeVisualization] renderSuccess set to true')
   
   // 开始动画
+  console.log('[GlobeVisualization] Starting animation loop')
   animate()
 }
 
@@ -606,7 +633,7 @@ onUnmounted(() => {
 .globe-container {
   position: relative;
   width: 100%;
-  height: 100%;
+  height: 500px;
   min-height: 500px;
   background: linear-gradient(135deg, #000510 0%, #0a1628 100%);
   border-radius: 12px;
@@ -615,14 +642,14 @@ onUnmounted(() => {
 
 .globe-canvas {
   width: 100%;
-  height: 100%;
+  height: 500px;
   min-height: 500px;
 }
 
 // WebGL不支持时的降级样式
 .globe-fallback {
   width: 100%;
-  height: 100%;
+  height: 500px;
   min-height: 500px;
   padding: 20px;
   display: flex;

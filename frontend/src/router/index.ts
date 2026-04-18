@@ -89,6 +89,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '开放接口' },
       },
       {
+        path: 'intelligence',
+        name: 'GlobalIntelligence',
+        component: () => import('@/views/intelligence/index.vue'),
+        meta: { title: '全球情报', icon: 'globe' },
+      },
+      {
         path: 'data',
         name: 'Data',
         component: () => import('@/views/data/index.vue'),

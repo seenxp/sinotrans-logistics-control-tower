@@ -23,6 +23,11 @@ export default defineConfig({
         target: 'http://localhost:8000',
         changeOrigin: true,
       },
+      '/worldmonitor': {
+        target: 'http://localhost:40002',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/worldmonitor/, ''),
+      },
     },
   },
 })

@@ -86,6 +86,7 @@ import {
   PersonOutline,
   ConstructOutline,
   CodeOutline,
+  GlobeOutline,
 } from '@vicons/ionicons5'
 
 const router = useRouter()
@@ -104,6 +105,7 @@ const activeKey = computed(() => {
   if (path === '/monitor') return 'monitor'
   if (path === '/api-docs') return 'api-docs'
   if (path === '/data') return 'data'
+  if (path === '/intelligence') return 'intelligence'
   return 'dashboard'
 })
 
@@ -132,6 +134,8 @@ const breadcrumbs = computed(() => {
     items.push({ path: '/api-docs', title: '开放接口' })
   } else if (path === '/data') {
     items.push({ path: '/data', title: '数据治理' })
+  } else if (path === '/intelligence') {
+    items.push({ path: '/intelligence', title: '全球情报' })
   }
 
   return items
@@ -148,6 +152,11 @@ const menuOptions = [
     label: '实时监控',
     key: 'monitor',
     icon: () => h(NIcon, null, { default: () => h(AnalyticsOutline) }),
+  },
+  {
+    label: '全球情报',
+    key: 'intelligence',
+    icon: () => h(NIcon, null, { default: () => h(GlobeOutline) }),
   },
   {
     label: '预测分析',
@@ -231,6 +240,9 @@ function handleMenuSelect(key: string) {
       break
     case 'monitor':
       router.push('/monitor')
+      break
+    case 'intelligence':
+      router.push('/intelligence')
       break
     case 'demand':
       router.push('/prediction/demand')
